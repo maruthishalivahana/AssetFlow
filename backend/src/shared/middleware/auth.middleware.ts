@@ -35,7 +35,12 @@ export const authMiddleware = async (
       },
     });
 
-    if (!user || user.deletedAt || user.status !== 'ACTIVE' || user.tokenVersion !== decodedToken.tokenVersion) {
+    if (
+      !user ||
+      user.deletedAt ||
+      user.status !== 'ACTIVE' ||
+      user.tokenVersion !== decodedToken.tokenVersion
+    ) {
       next(new ApiError(401, 'Session expired, please login again'));
       return;
     }
@@ -52,4 +57,26 @@ export const authMiddleware = async (
   } catch {
     next(new ApiError(401, 'Invalid or expired token'));
   }
+};
+
+export const requireAuth = authMiddleware;
+
+export const requireRoles = (...allowedRoles: string[]): any => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      next(new ApiError(401, 'Unauthorized'));
+      return;
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      next(new ApiError(403, 'Forbidden: Insufficient permissions'));
+      return;
+    }
+
+    next();
+  };
+};
+
+export const requireRole = (allowedRoles: string[]): any => {
+  return requireRoles(...allowedRoles);
 };
