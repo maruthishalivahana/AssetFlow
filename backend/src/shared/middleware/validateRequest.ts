@@ -1,0 +1,28 @@
+import type { NextFunction, Request, RequestHandler, Response } from 'express';
+import type { ZodTypeAny } from 'zod';
+
+type RequestSchemas = {
+  body?: ZodTypeAny;
+  query?: ZodTypeAny;
+  params?: ZodTypeAny;
+};
+
+export const validateRequest = (
+  schemas: RequestSchemas,
+): RequestHandler => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (schemas.body) {
+      req.body = schemas.body.parse(req.body);
+    }
+
+    if (schemas.query) {
+      req.query = schemas.query.parse(req.query) as Request['query'];
+    }
+
+    if (schemas.params) {
+      req.params = schemas.params.parse(req.params) as Request['params'];
+    }
+
+    next();
+  };
+};

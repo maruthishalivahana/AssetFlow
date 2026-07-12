@@ -1,14 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { ApiError } from '@shared/errors/ApiError';
+import type { AuthenticatedUser } from '@shared/types/common';
 import { verifyToken } from '@shared/utils/token';
-
-type AuthenticatedUser = {
-  id: string;
-  email?: string;
-  role?: string;
-  organizationId?: string;
-};
 
 export const authMiddleware = (
   req: Request,
