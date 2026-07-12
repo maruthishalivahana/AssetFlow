@@ -8,4 +8,5 @@ export type AuthenticatedUser = {
 	email: string;
 	role: Role;
 	departmentId?: string | null;
+	tokenVersion: number;
 };

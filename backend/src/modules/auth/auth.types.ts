@@ -11,6 +11,15 @@ export type AuthRegisterInput = {
 	password: string;
 };
 
+export type ForgotPasswordInput = {
+	email: string;
+};
+
+export type ResetPasswordInput = {
+	token: string;
+	password: string;
+};
+
 export type AuthUserDto = {
 	id: string;
 	email: string;
@@ -33,4 +42,8 @@ export type AuthUserDto = {
 export type AuthResponseDto = {
 	user: AuthUserDto;
 	token: string;
+};
+
+export type ForgotPasswordResponseDto = {
+	resetLink?: string;
 };

@@ -126,6 +126,9 @@ model User {
   phone String?
   employeeCode String? @unique @map("employee_code")
   jobTitle String? @map("job_title")
+  tokenVersion Int @default(0) @map("token_version")
+  passwordResetTokenHash String? @map("password_reset_token_hash")
+  passwordResetTokenExpiresAt DateTime? @map("password_reset_token_expires_at")
 
   role Role
   status UserStatus @default(ACTIVE)

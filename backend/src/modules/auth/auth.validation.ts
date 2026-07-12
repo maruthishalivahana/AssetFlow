@@ -15,3 +15,12 @@ export const loginSchema = z.object({
 	email: z.string().trim().email('Valid email is required').max(255),
 	password: z.string().min(1, 'Password is required'),
 });
+
+export const forgotPasswordSchema = z.object({
+	email: z.string().trim().email('Valid email is required').max(255),
+});
+
+export const resetPasswordSchema = z.object({
+	token: z.string().trim().min(1, 'Reset token is required'),
+	password: passwordSchema,
+});

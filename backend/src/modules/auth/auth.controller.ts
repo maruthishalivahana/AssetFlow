@@ -17,6 +17,20 @@ const login = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json(successResponse('Login successful', result));
 });
 
+const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+	const result = await authService.forgotPassword(req.body);
+
+	res.status(200).json(
+		successResponse('If the email exists, a reset link has been generated', result),
+	);
+});
+
+const resetPassword = asyncHandler(async (req: Request, res: Response) => {
+	await authService.resetPassword(req.body);
+
+	res.status(200).json(successResponse('Password reset successful'));
+});
+
 const me = asyncHandler(async (req: Request, res: Response) => {
 	if (!req.user) {
 		throw new Error('Unauthorized');
@@ -30,5 +44,7 @@ const me = asyncHandler(async (req: Request, res: Response) => {
 export const authController = {
 	register,
 	login,
+	forgotPassword,
+	resetPassword,
 	me,
 };
