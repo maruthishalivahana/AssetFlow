@@ -38,7 +38,7 @@ const list = async (req: Request, res: Response, next: NextFunction) => {
 
 const getOne = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const asset = await assetsService.getAssetById(id);
         res.json({ success: true, data: asset });
     } catch (err) {
@@ -48,7 +48,7 @@ const getOne = async (req: Request, res: Response, next: NextFunction) => {
 
 const update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const body = parseBody(updateAssetSchema, req.body);
         const files = (req.files as Express.Multer.File[] | undefined) ?? undefined;
         const userId = req.user?.id;
@@ -62,7 +62,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
 
 const remove = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
         const result = await assetsService.softDeleteAsset(id);
         res.json({ success: true, data: result });
     } catch (err) {

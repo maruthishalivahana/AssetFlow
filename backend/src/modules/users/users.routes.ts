@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, requireRoles, validateRequest } from '@shared/middleware';
 import { usersController } from './users.controller';
-import { getUsersQuerySchema, updateEmployeeSchema, updateRoleSchema } from './users.validation';
+import { createEmployeeSchema, getUsersQuerySchema, updateEmployeeSchema, updateRoleSchema } from './users.validation';
 
 export const usersRoutes = Router();
 
@@ -10,6 +10,12 @@ usersRoutes.use(requireAuth);
 usersRoutes.use(requireRoles('ADMIN'));
 
 usersRoutes.get('/dropdown', usersController.getUsersDropdown);
+
+usersRoutes.post(
+  '/',
+  validateRequest({ body: createEmployeeSchema }),
+  usersController.createEmployee,
+);
 
 usersRoutes.get('/', validateRequest({ query: getUsersQuerySchema }), usersController.getUsers);
 

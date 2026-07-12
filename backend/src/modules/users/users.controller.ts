@@ -3,6 +3,11 @@ import { asyncHandler } from '@shared/middleware/asyncHandler';
 import { successResponse } from '@shared/responses';
 import { usersService } from './users.service';
 
+const createEmployee = asyncHandler(async (req: Request, res: Response) => {
+  const result = await usersService.createEmployee(req.body);
+  res.status(201).json(successResponse('Employee created successfully', result));
+});
+
 const updateEmployee = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await usersService.updateEmployee(id as string, req.body);
@@ -75,6 +80,7 @@ const getUsersDropdown = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 export const usersController = {
+  createEmployee,
   updateEmployee,
   updateRole,
   getUsers,

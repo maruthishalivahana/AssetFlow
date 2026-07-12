@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { bookingsController } from './bookings.controller';
-import { requireRole } from '@middlewares/role.middleware';
+import { requireRole } from '@shared/middleware/auth.middleware';
 
 export const bookingsRoutes = Router();
 

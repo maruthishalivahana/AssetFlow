@@ -191,6 +191,11 @@ model User {
   assetFilesUploaded AssetFile[] @relation("AssetFileUploadedBy")
   assetsCreated Asset[] @relation("AssetCreatedBy")
   assetsUpdated Asset[] @relation("AssetUpdatedBy")
+  resourcesCreated Resource[] @relation("ResourceCreatedBy")
+  resourcesUpdated Resource[] @relation("ResourceUpdatedBy")
+  resourceBookingsRequested ResourceBooking[] @relation("ResourceBookingRequestedBy")
+  resourceBookingsApproved ResourceBooking[] @relation("ResourceBookingApprovedBy")
+  resourceBookingNotifications ResourceBookingNotification[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -218,6 +223,8 @@ model Department {
   users User[] @relation("DepartmentUsers")
 
   assets Asset[] @relation("DepartmentAssets")
+  resources Resource[]
+  resourceBookings ResourceBooking[]
   auditCycles AuditCycle[] @relation("DepartmentAuditCycles")
   transfersFromDepartment AssetTransferRequest[] @relation("TransferFromDepartment")
   transfersToDepartment AssetTransferRequest[] @relation("TransferToDepartment")

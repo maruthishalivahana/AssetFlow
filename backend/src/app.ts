@@ -10,6 +10,7 @@ import { departmentsRoutes } from '@modules/departments/departments.routes';
 import { assetCategoriesRoutes } from '@modules/asset-categories/asset-categories.routes';
 import { organizationRoutes } from '@modules/organization/organization.routes';
 import { assetsRoutes } from '@modules/assets/assets.routes';
+import { bookingsRoutes } from '@modules/bookings/bookings.routes';
 import { uploadDir } from '@config/multer';
 import { errorMiddleware } from '@shared/middleware/error.middleware';
 import { notFoundMiddleware } from '@shared/middleware/notFound.middleware';
