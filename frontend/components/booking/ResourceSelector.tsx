@@ -38,7 +38,7 @@ export function ResourceSelector({
     <div className="bg-[#111111] border border-[#262626] rounded-2xl p-4 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
       <div className="w-full sm:flex-1 sm:max-w-md">
         <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider font-semibold">Resource</label>
-        <Select value={selectedResourceId} onValueChange={onResourceChange}>
+        <Select value={selectedResourceId} onValueChange={(v) => onResourceChange(v as string)}>
           <SelectTrigger className="w-full bg-[#090909] border-[#262626] text-slate-200">
             <SelectValue placeholder="Select a resource..." />
           </SelectTrigger>

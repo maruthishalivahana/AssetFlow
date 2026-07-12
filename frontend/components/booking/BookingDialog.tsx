@@ -122,7 +122,7 @@ export function BookingDialog({
           <div className="space-y-6">
             <div className="space-y-2">
               <Label className="text-slate-300">Resource <span className="text-red-500">*</span></Label>
-              <Select value={resourceId} onValueChange={(val) => setValue("resourceId", val)}>
+              <Select value={resourceId} onValueChange={(val) => setValue("resourceId", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.resourceId ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select resource" />
                 </SelectTrigger>
@@ -171,7 +171,7 @@ export function BookingDialog({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-300">Department <span className="text-red-500">*</span></Label>
-                <Select value={department} onValueChange={(val) => setValue("department", val)}>
+                <Select value={department} onValueChange={(val) => setValue("department", val as string)}>
                   <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.department ? "border-red-500" : ""}`}>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>

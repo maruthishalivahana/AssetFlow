@@ -170,7 +170,7 @@ export function RegisterAssetDialog({
 
             <div className="space-y-2">
               <Label className="text-slate-300">Category <span className="text-red-500">*</span></Label>
-              <Select value={category} onValueChange={(val) => setValue("category", val)}>
+              <Select value={category} onValueChange={(val) => setValue("category", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.category ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -194,7 +194,7 @@ export function RegisterAssetDialog({
 
             <div className="space-y-2">
               <Label className="text-slate-300">Department <span className="text-red-500">*</span></Label>
-              <Select value={department} onValueChange={(val) => setValue("department", val)}>
+              <Select value={department} onValueChange={(val) => setValue("department", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.department ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
@@ -207,7 +207,7 @@ export function RegisterAssetDialog({
 
             <div className="space-y-2">
               <Label className="text-slate-300">Location <span className="text-red-500">*</span></Label>
-              <Select value={location} onValueChange={(val) => setValue("location", val)}>
+              <Select value={location} onValueChange={(val) => setValue("location", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.location ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select location" />
                 </SelectTrigger>
@@ -220,7 +220,7 @@ export function RegisterAssetDialog({
 
             <div className="space-y-2">
               <Label className="text-slate-300">Condition <span className="text-red-500">*</span></Label>
-              <Select value={condition} onValueChange={(val) => setValue("condition", val)}>
+              <Select value={condition} onValueChange={(val) => setValue("condition", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.condition ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
@@ -233,7 +233,7 @@ export function RegisterAssetDialog({
 
             <div className="space-y-2">
               <Label className="text-slate-300">Status <span className="text-red-500">*</span></Label>
-              <Select value={status} onValueChange={(val) => setValue("status", val)}>
+              <Select value={status} onValueChange={(val) => setValue("status", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.status ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
