@@ -7,9 +7,7 @@ type RequestSchemas = {
   params?: ZodTypeAny;
 };
 
-export const validateRequest = (
-  schemas: RequestSchemas,
-): RequestHandler => {
+export const validateRequest = (schemas: RequestSchemas): RequestHandler => {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (schemas.body) {
       req.body = schemas.body.parse(req.body);

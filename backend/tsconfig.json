@@ -15,16 +15,25 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "baseUrl": ".",
-
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [
         "src/*"
       ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
       "@config/*": [
         "src/config/*"
       ],
+      "@middlewares/*": [
+        "src/middlewares/*"
+      ],
       "@modules/*": [
         "src/modules/*"
+      ],
+      "@seed/*": [
+        "src/seed/*"
       ],
       "@shared/*": [
         "src/shared/*"
