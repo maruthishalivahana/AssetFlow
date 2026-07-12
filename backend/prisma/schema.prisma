@@ -77,6 +77,29 @@ enum BookingStatus {
   COMPLETED
 }
 
+enum ResourceType {
+  MEETING_ROOM
+  CONFERENCE_ROOM
+  PROJECTOR
+  VEHICLE
+  EQUIPMENT
+  OTHER
+}
+
+enum ResourceStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  UNAVAILABLE
+}
+
+enum ResourceBookingStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
 enum MaintenanceStatus {
   PENDING
   APPROVED
@@ -407,6 +430,106 @@ model Booking {
   @@index([startAt])
   @@index([endAt])
   @@map("bookings")
+}
+
+model Resource {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  type ResourceType @default(MEETING_ROOM)
+  departmentId String? @db.Uuid @map("department_id")
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  capacity Int? 
+  location String
+  status ResourceStatus @default(AVAILABLE)
+  description String?
+  metadata Json?
+
+  bookings ResourceBooking[]
+
+  createdById String? @db.Uuid @map("created_by_id")
+  updatedById String? @db.Uuid @map("updated_by_id")
+  createdBy User? @relation("ResourceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("ResourceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([departmentId])
+  @@index([status])
+  @@map("resources")
+}
+
+model ResourceBooking {
+  id String @id @default(uuid()) @db.Uuid
+
+  resourceId String @db.Uuid @map("resource_id")
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Restrict)
+
+  requestedByUserId String @db.Uuid @map("requested_by_user_id")
+  requestedByUser User @relation("ResourceBookingRequestedBy", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+
+  approvedByUserId String? @db.Uuid @map("approved_by_user_id")
+  approvedByUser User? @relation("ResourceBookingApprovedBy", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+
+  departmentId String? @db.Uuid @map("department_id")
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  title String
+  purpose String?
+  startAt DateTime @map("start_at")
+  endAt DateTime @map("end_at")
+  status ResourceBookingStatus @default(UPCOMING)
+  attendees Int @default(1)
+  notes String?
+  cancelledAt DateTime? @map("cancelled_at")
+  completedAt DateTime? @map("completed_at")
+
+  history ResourceBookingHistory[]
+  notifications ResourceBookingNotification[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([resourceId])
+  @@index([requestedByUserId])
+  @@index([departmentId])
+  @@index([status])
+  @@index([startAt])
+  @@index([endAt])
+  @@map("resource_bookings")
+}
+
+model ResourceBookingHistory {
+  id String @id @default(uuid()) @db.Uuid
+  bookingId String @db.Uuid @map("booking_id")
+  booking ResourceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  eventType String
+  notes String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([bookingId])
+  @@map("booking_history")
+}
+
+model ResourceBookingNotification {
+  id String @id @default(uuid()) @db.Uuid
+  bookingId String @db.Uuid @map("booking_id")
+  booking ResourceBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId String @db.Uuid @map("user_id")
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  type NotificationType @default(REMINDER)
+  message String
+  scheduledAt DateTime? @map("scheduled_at")
+  deliveredAt DateTime? @map("delivered_at")
+  readAt DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([bookingId])
+  @@index([userId])
+  @@map("booking_notifications")
 }
 
 model MaintenanceRequest {
