@@ -25,10 +25,10 @@ export function AuthLayout({ children, hero, title, description }: AuthLayoutPro
         </div>
 
         {/* Content Centered */}
-        <div className="flex-1 flex flex-col justify-center px-6 py-12 md:px-16 lg:px-20 xl:px-24">
-          <div className="w-full max-w-md mx-auto space-y-8">
+        <div className="flex-1 flex flex-col justify-center px-4 sm:px-8 py-8 sm:py-12 md:px-16 lg:px-20 xl:px-24">
+          <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8">
             <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+              <h1 className="text-2xl sm:text-3xl xl:text-4xl font-semibold tracking-tight text-slate-900">
                 {title}
               </h1>
               <p className="text-slate-500 text-sm leading-relaxed">

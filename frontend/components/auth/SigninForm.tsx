@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 
 export function SigninForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -43,22 +45,20 @@ export function SigninForm() {
   const onSubmit = async (data: SigninFormValues) => {
     setIsSubmitting(true);
     // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Form submitted:", data);
     
-    // In the future, dispatch to Redux Toolkit here
-    // dispatch(signinUser(data));
-    
+    router.push("/");
     setIsSubmitting(false);
   };
 
   return (
     <div className="w-full">
-      <Card className="border-0 shadow-none bg-transparent sm:border sm:shadow-sm sm:bg-white sm:rounded-2xl sm:backdrop-blur-sm sm:bg-white/80 transition-all">
-        <CardContent className="p-0 sm:p-6 lg:p-8">
+      <Card className="border border-slate-200 shadow-sm bg-white/80 rounded-2xl backdrop-blur-sm transition-all">
+        <CardContent className="p-5 sm:p-6 lg:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email" className="text-slate-900">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -67,12 +67,12 @@ export function SigninForm() {
                 aria-invalid={!!errors.email && dirtyFields.email}
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
-                className={`transition-colors focus-visible:ring-1 ${
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none border-slate-200 ${
                   errors.email && dirtyFields.email
-                    ? "border-red-500 focus-visible:ring-red-500"
-                    : dirtyFields.email && !errors.email && emailValue.length > 0
-                    ? "border-green-500 focus-visible:ring-green-500"
-                    : ""
+                    ? "border-red-500 focus-visible:border-red-500"
+                    : dirtyFields.email && !errors.email && emailValue?.length > 0
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                 }`}
               />
               <div id="email-validation">
@@ -86,10 +86,10 @@ export function SigninForm() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-slate-900">Password</Label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-medium text-slate-500 hover:text-blue-600 hover:underline transition-colors"
+                  className="text-xs font-medium text-slate-900 hover:text-blue-600 hover:underline transition-colors"
                 >
                   Forgot password?
                 </Link>

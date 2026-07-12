@@ -8,6 +8,8 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 export const metadata: Metadata = {
   title: "AssetFlow | Manage Assets Smarter",
   description: "Track, allocate and manage organizational assets from one centralized platform.",
@@ -26,7 +28,9 @@ export default function RootLayout({
       <head>
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,400,300&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { PasswordInput } from "./PasswordInput";
 import { ValidationMessage } from "./ValidationMessage";
 import { PasswordChecklist } from "./PasswordChecklist";
+import { useRouter } from "next/navigation";
 
 const passwordSchema = z
   .string()
@@ -66,21 +67,23 @@ export function SignupForm() {
   const emailValue = watch("email");
   const confirmPasswordValue = watch("confirmPassword");
 
+  const router = useRouter();
+
   const onSubmit = async (data: SignupFormValues) => {
     setIsSubmitting(true);
     // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 800));
     console.log("Form submitted:", data);
-    setIsSubmitting(false);
+    router.push("/");
   };
 
   return (
     <div className="w-full">
-      <Card className="border-0 shadow-none bg-transparent sm:border sm:shadow-sm sm:bg-white sm:rounded-2xl sm:backdrop-blur-sm sm:bg-white/80 transition-all">
-        <CardContent className="p-0 sm:p-6 lg:p-8">
+      <Card className="border border-slate-200 shadow-sm bg-white/80 rounded-2xl backdrop-blur-sm transition-all">
+        <CardContent className="p-5 sm:p-6 lg:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName" className="text-slate-900">Full Name</Label>
               <Input
                 id="fullName"
                 placeholder="John Doe"
@@ -88,8 +91,8 @@ export function SignupForm() {
                 aria-invalid={!!errors.fullName && touchedFields.fullName}
                 aria-describedby={errors.fullName && touchedFields.fullName ? "fullName-error" : undefined}
                 {...register("fullName")}
-                className={`transition-colors focus-visible:ring-1 ${
-                  errors.fullName && touchedFields.fullName ? "border-red-500 focus-visible:ring-red-500" : ""
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
+                  errors.fullName && touchedFields.fullName ? "border-red-500 focus-visible:border-red-500" : "border-slate-200 focus-visible:border-slate-300"
                 }`}
               />
               {touchedFields.fullName && errors.fullName && (
@@ -100,7 +103,7 @@ export function SignupForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email" className="text-slate-900">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -109,12 +112,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.email && dirtyFields.email}
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
-                className={`transition-colors focus-visible:ring-1 ${
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
                   errors.email && dirtyFields.email
-                    ? "border-red-500 focus-visible:ring-red-500"
+                    ? "border-red-500 focus-visible:border-red-500"
                     : dirtyFields.email && !errors.email && emailValue.length > 0
-                    ? "border-green-500 focus-visible:ring-green-500"
-                    : ""
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                 }`}
               />
               <div id="email-validation">
@@ -127,7 +130,7 @@ export function SignupForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-slate-900">Password</Label>
               <PasswordInput
                 id="password"
                 placeholder="Create a password"
@@ -135,12 +138,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.password && dirtyFields.password}
                 aria-describedby="password-rules"
                 {...register("password")}
-                className={`transition-colors focus-visible:ring-1 ${
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
                   errors.password && dirtyFields.password
-                    ? "border-red-500 focus-visible:ring-red-500"
+                    ? "border-red-500 focus-visible:border-red-500"
                     : dirtyFields.password && !errors.password && passwordValue.length > 0
-                    ? "border-green-500 focus-visible:ring-green-500"
-                    : ""
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                 }`}
               />
               <div id="password-rules">
@@ -149,7 +152,7 @@ export function SignupForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-slate-900">Confirm Password</Label>
               <PasswordInput
                 id="confirmPassword"
                 placeholder="Confirm your password"
@@ -157,12 +160,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.confirmPassword && dirtyFields.confirmPassword}
                 aria-describedby={dirtyFields.confirmPassword ? "confirmPassword-validation" : undefined}
                 {...register("confirmPassword")}
-                className={`transition-colors focus-visible:ring-1 ${
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
                   errors.confirmPassword && dirtyFields.confirmPassword
-                    ? "border-red-500 focus-visible:ring-red-500"
+                    ? "border-red-500 focus-visible:border-red-500"
                     : dirtyFields.confirmPassword && !errors.confirmPassword && confirmPasswordValue.length > 0
-                    ? "border-green-500 focus-visible:ring-green-500"
-                    : ""
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                 }`}
               />
               <div id="confirmPassword-validation">
