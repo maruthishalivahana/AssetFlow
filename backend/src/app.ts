@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import { env } from '@config/env';
+import { authRoutes } from '@modules/auth/auth.routes';
 import { errorMiddleware } from '@shared/middleware/error.middleware';
 import { notFoundMiddleware } from '@shared/middleware/notFound.middleware';
 import { apiRateLimiter } from '@shared/middleware/rateLimiter';
@@ -38,6 +39,8 @@ export const createApp = (): Express => {
       environment: env.NODE_ENV,
     });
   });
+
+  app.use('/api/auth', authRoutes);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);
