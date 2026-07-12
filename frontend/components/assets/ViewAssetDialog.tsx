@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { AssetStatusBadge } from "./AssetStatusBadge";
 import { AssetConditionBadge } from "./AssetConditionBadge";
-import { QrCode, Calendar, MapPin, Building2, User, Clock, HardDrive, Tag } from "lucide-react";
+import { QrCode, Calendar, MapPin, Building2, User, Clock, HardDrive, Tag, FileText, Download } from "lucide-react";
 
 interface ViewAssetDialogProps {
   asset: Asset | null;
@@ -36,7 +36,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
                 </span>
               </div>
             </div>
-            
+
             {/* Fake QR Code */}
             <div className="bg-white p-2 rounded-lg border border-[#262626]">
               <QrCode className="w-12 h-12 text-black" />
@@ -45,7 +45,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
         </DialogHeader>
 
         <div className="p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Identification</h4>
@@ -60,7 +60,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
                 <span className="text-slate-100 font-medium font-mono">{asset.serialNumber}</span>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Assignment</h4>
               <div className="flex items-center gap-3 text-sm">
@@ -116,6 +116,80 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pt-6 border-t border-[#262626]">
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Purchase Info</h4>
+              <div className="flex items-center gap-3 text-sm">
+                <Calendar className="w-4 h-4 text-slate-500" />
+                <span className="text-slate-400 w-24">Purchased:</span>
+                <span className="text-slate-100 font-medium">{asset.purchaseDate}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <span className="w-4 h-4 flex items-center justify-center font-bold text-slate-500">$</span>
+                <span className="text-slate-400 w-24">Cost:</span>
+                <span className="text-slate-100 font-medium">${asset.purchaseCost.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Clock className="w-4 h-4 text-slate-500" />
+                <span className="text-slate-400 w-24">Warranty:</span>
+                <span className="text-slate-100 font-medium">{asset.warrantyExpiry}</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-2">Additional</h4>
+              <div className="flex flex-col gap-2 text-sm">
+                <span className="text-slate-400">Description:</span>
+                <span className="text-slate-200 leading-relaxed bg-[#090909] p-3 rounded-xl border border-[#262626]">
+                  {asset.description || "No description provided."}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm mt-2">
+                <span className="text-slate-400">Bookable Resource:</span>
+                <span className="text-slate-100 font-medium">{asset.bookable ? "Yes" : "No"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 pb-6">
+            {/* Note: asset.files should be returned by the API (array of { id, fileName, filePath, mimeType }) */}
+            {asset.files && asset.files.length > 0 && (
+              <div>
+                <div className="mt-4">
+                  <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Files & Documents</h4>
+                  <div className="space-y-2">
+                    {asset.files.map((f: any) => (
+                      <div key={f.id} className="flex items-center justify-between gap-3 bg-[#090909] border border-[#262626] rounded-md p-3">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-slate-400" />
+                          <div>
+                            <div className="text-sm text-slate-100">{f.fileName}</div>
+                            <div className="text-xs text-slate-500">{f.mimeType || 'file'}</div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const downloadUrl = f.filePath ? `/uploads/${encodeURIComponent(f.filePath)}` : '#';
+                              window.open(downloadUrl, '_blank');
+                            }}
+                          >
+                            <button className="inline-flex items-center gap-2 bg-transparent border border-[#262626] text-slate-200 px-3 py-1 rounded-md">
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </button>
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

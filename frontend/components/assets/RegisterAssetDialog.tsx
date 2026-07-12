@@ -46,7 +46,7 @@ interface RegisterAssetDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (data: any) => void;
-  
+
   // Data for selects
   departments: string[];
   locations: string[];
@@ -134,16 +134,54 @@ export function RegisterAssetDialog({
 
   const onSubmit = async (data: AssetFormValues) => {
     setIsSubmitting(true);
-    // Mock network request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSave(data);
-    setIsSubmitting(false);
-    onOpenChange(false);
+    try {
+      // Map form fields to API payload
+      const payload: any = {
+        name: data.name,
+        assetCategoryId: data.category,
+        departmentId: data.department,
+        serialNumber: data.serialNumber,
+        description: data.description,
+        purchaseDate: data.purchaseDate,
+        purchaseCost: Number(data.purchaseCost || 0),
+        isBookable: !!data.bookable,
+        condition: data.condition,
+      };
+
+      // call onSave which should call the service to create asset
+      await onSave(payload);
+    } catch (err) {
+      console.error('Failed to save asset', err);
+    } finally {
+      setIsSubmitting(false);
+      onOpenChange(false);
+    }
   };
 
+  const [remoteCategories, setRemoteCategories] = useState<{ id: string; name: string }[]>([]);
+  const [remoteDepartments, setRemoteDepartments] = useState<{ id: string; name: string }[]>([]);
   const categories: AssetCategory[] = ["Electronics", "Furniture", "Vehicles", "Network", "IT Equipment", "AV Equipment"];
   const statuses: AssetStatus[] = ["Available", "Allocated", "Maintenance", "Reserved", "Lost", "Disposed", "Retired"];
   const conditions: AssetCondition[] = ["Excellent", "Good", "Fair", "Poor", "New"];
+
+  useEffect(() => {
+    // fetch remote lists once when dialog opens
+    if (!open) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const [{ getCategories }, { getDepartments }] = [await import("@/src/services/organization.service"), await import("@/src/services/organization.service")];
+        const cats = await getCategories();
+        const depts = await getDepartments();
+        if (!mounted) return;
+        setRemoteCategories(cats);
+        setRemoteDepartments(depts);
+      } catch (err) {
+        console.warn('Failed to load organization lists', err);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -155,7 +193,7 @@ export function RegisterAssetDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-slate-300">Asset Name <span className="text-red-500">*</span></Label>
@@ -175,7 +213,11 @@ export function RegisterAssetDialog({
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {remoteCategories.length > 0 ? (
+                    remoteCategories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)
+                  ) : (
+                    categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)
+                  )}
                 </SelectContent>
               </Select>
               {errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
@@ -199,7 +241,11 @@ export function RegisterAssetDialog({
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departments.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                  {remoteDepartments.length > 0 ? (
+                    remoteDepartments.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)
+                  ) : (
+                    departments.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)
+                  )}
                 </SelectContent>
               </Select>
               {errors.department && <p className="text-xs text-red-500">{errors.department.message}</p>}
@@ -287,11 +333,11 @@ export function RegisterAssetDialog({
               />
               {errors.purchaseCost && <p className="text-xs text-red-500">{errors.purchaseCost.message}</p>}
             </div>
-            
+
             <div className="space-y-2 flex flex-col justify-end">
               <div className="flex items-center space-x-2 bg-[#090909] border border-[#262626] p-3 rounded-md h-10">
-                <Checkbox 
-                  id="bookable" 
+                <Checkbox
+                  id="bookable"
                   checked={bookable}
                   onCheckedChange={(checked) => setValue("bookable", checked as boolean)}
                   className="border-[#262626] data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"

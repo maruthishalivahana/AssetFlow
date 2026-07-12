@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { AssetHeader } from "./AssetHeader";
 import { AssetToolbar } from "./AssetToolbar";
 import { AssetTable } from "./AssetTable";
@@ -10,11 +10,17 @@ import { EmptyAssets } from "./EmptyAssets";
 import { ViewAssetDialog } from "./ViewAssetDialog";
 import { RegisterAssetDialog } from "./RegisterAssetDialog";
 import { DeleteAssetDialog } from "./DeleteAssetDialog";
-
-import { Asset, mockAssets } from "./mockData";
+import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
+import { fetchAssets, createAsset as createAssetAction, updateAsset as updateAssetAction, removeAsset as removeAssetAction, fetchAsset } from "@/src/store/slices/assetSlice";
+import type { Asset as AssetType } from "@/src/store/slices/assetSlice";
 
 export function AssetsPage() {
-  const [assets, setAssets] = useState<Asset[]>(mockAssets);
+  const dispatch = useAppDispatch();
+  const { items: assets, loading } = useAppSelector((s) => s.assets);
+
+  useEffect(() => {
+    dispatch(fetchAssets({ page: 1, limit: 50 }));
+  }, [dispatch]);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,16 +37,16 @@ export function AssetsPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // Derived Options for Dropdowns
-  const departments = useMemo(() => Array.from(new Set(mockAssets.map(a => a.department))), []);
-  const locations = useMemo(() => Array.from(new Set(mockAssets.map(a => a.location))), []);
+  const departments = useMemo(() => Array.from(new Set(assets.map((a: any) => a.department || a.department?.name || 'Unassigned'))), [assets]);
+  const locations = useMemo(() => Array.from(new Set(assets.map((a: any) => a.location || 'Unknown'))), [assets]);
 
   // Filter Logic
   const filteredAssets = useMemo(() => {
     return assets.filter((asset) => {
       const q = searchQuery.toLowerCase();
-      const matchSearch = 
-        asset.name.toLowerCase().includes(q) || 
-        asset.tag.toLowerCase().includes(q) || 
+      const matchSearch =
+        asset.name.toLowerCase().includes(q) ||
+        asset.tag.toLowerCase().includes(q) ||
         asset.serialNumber.toLowerCase().includes(q);
 
       const matchCat = categoryFilter === "all" || asset.category === categoryFilter;
@@ -60,22 +66,27 @@ export function AssetsPage() {
   };
 
   const handleSaveAsset = (data: any) => {
+    const payload = {
+      name: data.name,
+      assetCategoryId: data.category,
+      departmentId: data.department,
+      serialNumber: data.serialNumber,
+      description: data.description,
+      purchaseDate: data.purchaseDate,
+      purchaseCost: Number(data.purchaseCost || 0),
+      isBookable: Boolean(data.bookable),
+      condition: data.condition?.toUpperCase?.() || undefined,
+    };
+
     if (selectedAsset) {
-      // Edit
-      setAssets(assets.map(a => a.id === selectedAsset.id ? { ...a, ...data } : a));
+      dispatch(updateAssetAction({ id: selectedAsset.id, payload, files: undefined }));
     } else {
-      // Create
-      const newAsset: Asset = {
-        ...data,
-        id: `a${Date.now()}`,
-        tag: `AF-${Math.floor(1000 + Math.random() * 9000)}`,
-      };
-      setAssets([newAsset, ...assets]);
+      dispatch(createAssetAction({ payload, files: undefined }));
     }
   };
 
   const handleDeleteAsset = (id: string) => {
-    setAssets(assets.filter(a => a.id !== id));
+    dispatch(removeAssetAction(id));
   };
 
   return (
@@ -103,15 +114,15 @@ export function AssetsPage() {
         <EmptyAssets onRegisterClick={handleRegisterClick} />
       ) : (
         <div className="flex flex-col gap-2">
-          <AssetTable 
+          <AssetTable
             assets={filteredAssets}
             onView={(asset) => { setSelectedAsset(asset); setIsViewOpen(true); }}
             onEdit={(asset) => { setSelectedAsset(asset); setIsRegisterOpen(true); }}
             onDelete={(asset) => { setSelectedAsset(asset); setIsDeleteOpen(true); }}
           />
-          <AssetPagination 
-            currentShowing={filteredAssets.length} 
-            totalAssets={assets.length} 
+          <AssetPagination
+            currentShowing={filteredAssets.length}
+            totalAssets={assets.length}
           />
         </div>
       )}
