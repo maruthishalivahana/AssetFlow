@@ -16,9 +16,11 @@ export function PasswordChecklist({ password = "", isDirty = false }: PasswordCh
   ];
 
   return (
-    <div className="mt-3 space-y-2">
-      {rules.map((rule, idx) => {
-        const isError = isDirty && !rule.valid && password.length > 0;
+    <div className="mt-4">
+      <div className="text-xs font-medium text-slate-500 mb-3">Password strength</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
+        {rules.map((rule, idx) => {
+          const isError = isDirty && !rule.valid && password.length > 0;
         
         return (
           <div
@@ -55,6 +57,7 @@ export function PasswordChecklist({ password = "", isDirty = false }: PasswordCh
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

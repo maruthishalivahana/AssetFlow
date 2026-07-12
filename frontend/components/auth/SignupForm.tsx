@@ -15,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PasswordInput } from "./PasswordInput";
 import { ValidationMessage } from "./ValidationMessage";
-import { PasswordStrength } from "./PasswordStrength";
 import { PasswordChecklist } from "./PasswordChecklist";
 
 const passwordSchema = z
@@ -145,7 +144,6 @@ export function SignupForm() {
                 }`}
               />
               <div id="password-rules">
-                <PasswordStrength password={passwordValue} />
                 <PasswordChecklist password={passwordValue} isDirty={dirtyFields.password} />
               </div>
             </div>
