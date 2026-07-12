@@ -1,5 +1,5 @@
 import React from "react";
-import type { BookingResource, BookingItem } from "@/types/booking";
+import type { BookingResource, BookingItem } from "@/src/types/booking";
 import { UpcomingBookings } from "./UpcomingBookings";
 import { Users, MapPin, Activity } from "lucide-react";
 

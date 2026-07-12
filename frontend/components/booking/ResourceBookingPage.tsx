@@ -8,7 +8,7 @@ import { ResourceDetailsCard } from "./ResourceDetailsCard";
 import { BookingDialog } from "./BookingDialog";
 import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
 import { fetchBookingResources, fetchBookings, createBooking } from "@/src/store/slices/bookingSlice";
-import type { BookingItem, BookingResource, BookingCreatePayload } from "@/types/booking";
+import type { BookingItem, BookingResource, BookingCreatePayload } from "@/src/types/booking";
 
 export function ResourceBookingPage() {
   const dispatch = useAppDispatch();

@@ -1,5 +1,5 @@
 import React from "react";
-import type { BookingResource } from "@/types/booking";
+import type { BookingResource } from "@/src/types/booking";
 import {
   Select,
   SelectContent,

@@ -84,7 +84,7 @@ export function BookingDialog({
     const loadDepartments = async () => {
       try {
         const response = await organizationService.getDepartments();
-        setDepartments(response?.items || []);
+        setDepartments(response?.departments || []);
       } catch {
         setDepartments([]);
       }

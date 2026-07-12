@@ -1,5 +1,5 @@
 import React from "react";
-import type { BookingItem } from "@/types/booking";
+import type { BookingItem } from "@/src/types/booking";
 import { BookingCard } from "./BookingCard";
 
 interface BookingTimelineProps {
