@@ -50,7 +50,7 @@ export function SigninForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/");
+      router.replace("/dashboard");
     }
   }, [isAuthenticated, router]);
 
@@ -60,7 +60,7 @@ export function SigninForm() {
     try {
       await dispatch(performLogin(data));
       toast.success("Welcome back");
-      router.replace("/");
+      router.replace("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to sign in";
       toast.error(message);
@@ -85,10 +85,10 @@ export function SigninForm() {
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
                 className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none border-slate-200 ${errors.email && dirtyFields.email
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.email && !errors.email && emailValue?.length > 0
-                      ? "border-green-500 focus-visible:border-green-500"
-                      : "border-slate-200 focus-visible:border-slate-300"
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.email && !errors.email && emailValue?.length > 0
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                   }`}
               />
               <div id="email-validation">

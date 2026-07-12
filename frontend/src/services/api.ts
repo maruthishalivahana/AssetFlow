@@ -1,7 +1,26 @@
 import axios, { AxiosError } from 'axios';
 import { clearAuthSession, getAuthSession } from '../utils/authStorage';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api';
+const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Normalize base URL to always include `/api` suffix.
+const normalizeApiBase = (base?: string): string => {
+    const fallback = 'http://localhost:5000/api';
+
+    if (!base || base.trim().length === 0) return fallback;
+
+    let url = base.trim();
+
+    // remove trailing slash
+    if (url.endsWith('/')) url = url.slice(0, -1);
+
+    // append /api if missing
+    if (!url.endsWith('/api')) url = `${url}/api`;
+
+    return url;
+};
+
+const API_BASE_URL = normalizeApiBase(rawBase);
 
 const client = axios.create({
     baseURL: API_BASE_URL,
@@ -37,10 +56,8 @@ client.interceptors.request.use((config) => {
     const authHeader = getAuthorizationHeader();
 
     if (authHeader && config.headers) {
-        config.headers = {
-            ...config.headers,
-            Authorization: authHeader,
-        };
+        // assign to headers in a type-safe way to avoid AxiosHeaders methods mismatch
+        (config.headers as Record<string, string | undefined>)["Authorization"] = authHeader;
     }
 
     return config;

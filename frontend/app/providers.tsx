@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReduxProvider } from "../src/store/provider";
 import { AuthInitializer } from "./AuthInitializer";
 
+
 interface ProvidersProps {
     children: ReactNode;
 }

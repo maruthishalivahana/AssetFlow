@@ -77,7 +77,7 @@ export function SignupForm() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace("/");
+      router.replace("/dashboard");
     }
   }, [isAuthenticated, router]);
 
@@ -89,7 +89,7 @@ export function SignupForm() {
 
       if (result?.token) {
         toast.success("Account created successfully.");
-        router.replace("/");
+        router.replace("/dashboard");
         return;
       }
 
@@ -138,10 +138,10 @@ export function SignupForm() {
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
                 className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.email && dirtyFields.email
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.email && !errors.email && emailValue.length > 0
-                      ? "border-green-500 focus-visible:border-green-500"
-                      : "border-slate-200 focus-visible:border-slate-300"
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.email && !errors.email && emailValue.length > 0
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                   }`}
               />
               <div id="email-validation">
@@ -163,10 +163,10 @@ export function SignupForm() {
                 aria-describedby="password-rules"
                 {...register("password")}
                 className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.password && dirtyFields.password
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.password && !errors.password && passwordValue.length > 0
-                      ? "border-green-500 focus-visible:border-green-500"
-                      : "border-slate-200 focus-visible:border-slate-300"
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.password && !errors.password && passwordValue.length > 0
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                   }`}
               />
               <div id="password-rules">
@@ -184,10 +184,10 @@ export function SignupForm() {
                 aria-describedby={dirtyFields.confirmPassword ? "confirmPassword-validation" : undefined}
                 {...register("confirmPassword")}
                 className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.confirmPassword && dirtyFields.confirmPassword
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.confirmPassword && !errors.confirmPassword && confirmPasswordValue.length > 0
-                      ? "border-green-500 focus-visible:border-green-500"
-                      : "border-slate-200 focus-visible:border-slate-300"
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.confirmPassword && !errors.confirmPassword && confirmPasswordValue.length > 0
+                    ? "border-green-500 focus-visible:border-green-500"
+                    : "border-slate-200 focus-visible:border-slate-300"
                   }`}
               />
               <div id="confirmPassword-validation">
