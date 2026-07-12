@@ -11,6 +11,7 @@ export interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -19,6 +20,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   accessToken: null,
+  refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -34,12 +36,17 @@ const authSlice = createSlice({
     },
     loginSuccess: (
       state,
-      action: PayloadAction<{ user: User; accessToken: string }>
+      action: PayloadAction<{
+        user: User;
+        accessToken: string;
+        refreshToken: string | null;
+      }>
     ) => {
       state.isLoading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
       state.error = null;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
@@ -50,6 +57,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
+      state.refreshToken = null;
       state.isAuthenticated = false;
       state.isLoading = false;
       state.error = null;

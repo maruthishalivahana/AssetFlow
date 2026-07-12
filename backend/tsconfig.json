@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
@@ -13,18 +15,43 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "baseUrl": ".",
+
     "paths": {
-      "@/*": ["src/*"],
-      "@constants/*": ["src/constants/*"],
-      "@config/*": ["src/config/*"],
-      "@middlewares/*": ["src/middlewares/*"],
-      "@modules/*": ["src/modules/*"],
-      "@seed/*": ["src/seed/*"],
-      "@shared/*": ["src/shared/*"],
-      "@types/*": ["src/shared/types/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@constants/*": [
+        "src/constants/*"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@middlewares/*": [
+        "src/middlewares/*"
+      ],
+      "@modules/*": [
+        "src/modules/*"
+      ],
+      "@seed/*": [
+        "src/seed/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@types/*": [
+        "src/shared/types/*"
+      ]
     },
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

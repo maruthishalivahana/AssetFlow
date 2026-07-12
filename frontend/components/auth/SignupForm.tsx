@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2, Info } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,9 @@ import { PasswordInput } from "./PasswordInput";
 import { ValidationMessage } from "./ValidationMessage";
 import { PasswordChecklist } from "./PasswordChecklist";
 import { useRouter } from "next/navigation";
+import { useAppDispatch } from "../../src/store/hooks";
+import { performRegister } from "../../src/store/actions/authActions";
+import { useAuth } from "../../src/hooks/useAuth";
 
 const passwordSchema = z
   .string()
@@ -46,6 +50,8 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAuth();
 
   const {
     register,
@@ -69,12 +75,32 @@ export function SignupForm() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
   const onSubmit = async (data: SignupFormValues) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("Form submitted:", data);
-    router.push("/");
+
+    try {
+      const result = await dispatch(performRegister(data));
+
+      if (result?.token) {
+        toast.success("Account created successfully.");
+        router.replace("/dashboard");
+        return;
+      }
+
+      toast.success("Account created successfully.");
+      router.replace("/signin");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create account";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -91,9 +117,8 @@ export function SignupForm() {
                 aria-invalid={!!errors.fullName && touchedFields.fullName}
                 aria-describedby={errors.fullName && touchedFields.fullName ? "fullName-error" : undefined}
                 {...register("fullName")}
-                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
-                  errors.fullName && touchedFields.fullName ? "border-red-500 focus-visible:border-red-500" : "border-slate-200 focus-visible:border-slate-300"
-                }`}
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.fullName && touchedFields.fullName ? "border-red-500 focus-visible:border-red-500" : "border-slate-200 focus-visible:border-slate-300"
+                  }`}
               />
               {touchedFields.fullName && errors.fullName && (
                 <div id="fullName-error">
@@ -112,13 +137,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.email && dirtyFields.email}
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
-                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
-                  errors.email && dirtyFields.email
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.email && !errors.email && emailValue.length > 0
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.email && dirtyFields.email
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.email && !errors.email && emailValue.length > 0
                     ? "border-green-500 focus-visible:border-green-500"
                     : "border-slate-200 focus-visible:border-slate-300"
-                }`}
+                  }`}
               />
               <div id="email-validation">
                 {dirtyFields.email && errors.email ? (
@@ -138,13 +162,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.password && dirtyFields.password}
                 aria-describedby="password-rules"
                 {...register("password")}
-                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
-                  errors.password && dirtyFields.password
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.password && !errors.password && passwordValue.length > 0
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.password && dirtyFields.password
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.password && !errors.password && passwordValue.length > 0
                     ? "border-green-500 focus-visible:border-green-500"
                     : "border-slate-200 focus-visible:border-slate-300"
-                }`}
+                  }`}
               />
               <div id="password-rules">
                 <PasswordChecklist password={passwordValue} isDirty={dirtyFields.password} />
@@ -160,13 +183,12 @@ export function SignupForm() {
                 aria-invalid={!!errors.confirmPassword && dirtyFields.confirmPassword}
                 aria-describedby={dirtyFields.confirmPassword ? "confirmPassword-validation" : undefined}
                 {...register("confirmPassword")}
-                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${
-                  errors.confirmPassword && dirtyFields.confirmPassword
-                    ? "border-red-500 focus-visible:border-red-500"
-                    : dirtyFields.confirmPassword && !errors.confirmPassword && confirmPasswordValue.length > 0
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none ${errors.confirmPassword && dirtyFields.confirmPassword
+                  ? "border-red-500 focus-visible:border-red-500"
+                  : dirtyFields.confirmPassword && !errors.confirmPassword && confirmPasswordValue.length > 0
                     ? "border-green-500 focus-visible:border-green-500"
                     : "border-slate-200 focus-visible:border-slate-300"
-                }`}
+                  }`}
               />
               <div id="confirmPassword-validation">
                 {dirtyFields.confirmPassword && errors.confirmPassword ? (
