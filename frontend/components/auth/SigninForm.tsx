@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { PasswordInput } from "./PasswordInput";
 import { ValidationMessage } from "./ValidationMessage";
+import { useAppDispatch } from "../../src/store/hooks";
+import { performLogin } from "../../src/store/actions/authActions";
+import { useAuth } from "../../src/hooks/useAuth";
 
 const signinSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -25,6 +29,8 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 export function SigninForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAuth();
 
   const {
     register,
@@ -42,14 +48,25 @@ export function SigninForm() {
 
   const emailValue = watch("email");
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/");
+    }
+  }, [isAuthenticated, router]);
+
   const onSubmit = async (data: SigninFormValues) => {
     setIsSubmitting(true);
-    // Mock API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("Form submitted:", data);
-    
-    router.push("/");
-    setIsSubmitting(false);
+
+    try {
+      await dispatch(performLogin(data));
+      toast.success("Welcome back");
+      router.replace("/");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to sign in";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -67,13 +84,12 @@ export function SigninForm() {
                 aria-invalid={!!errors.email && dirtyFields.email}
                 aria-describedby={dirtyFields.email ? "email-validation" : undefined}
                 {...register("email")}
-                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none border-slate-200 ${
-                  errors.email && dirtyFields.email
+                className={`text-slate-900 transition-colors focus-visible:ring-0 focus-visible:outline-none border-slate-200 ${errors.email && dirtyFields.email
                     ? "border-red-500 focus-visible:border-red-500"
                     : dirtyFields.email && !errors.email && emailValue?.length > 0
-                    ? "border-green-500 focus-visible:border-green-500"
-                    : "border-slate-200 focus-visible:border-slate-300"
-                }`}
+                      ? "border-green-500 focus-visible:border-green-500"
+                      : "border-slate-200 focus-visible:border-slate-300"
+                  }`}
               />
               <div id="email-validation">
                 {dirtyFields.email && errors.email ? (
@@ -101,9 +117,8 @@ export function SigninForm() {
                 aria-invalid={!!errors.password && touchedFields.password}
                 aria-describedby={errors.password && touchedFields.password ? "password-error" : undefined}
                 {...register("password")}
-                className={`transition-colors focus-visible:ring-1 ${
-                  errors.password && touchedFields.password ? "border-red-500 focus-visible:ring-red-500" : ""
-                }`}
+                className={`transition-colors focus-visible:ring-1 ${errors.password && touchedFields.password ? "border-red-500 focus-visible:ring-red-500" : ""
+                  }`}
               />
               <div id="password-error">
                 {touchedFields.password && errors.password && (
