@@ -1,10 +1,10 @@
 import React from "react";
-import { Booking } from "./mockData";
+import type { BookingItem } from "@/types/booking";
 import { BookingStatusBadge } from "./BookingStatusBadge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface UpcomingBookingsProps {
-  bookings: Booking[];
+  bookings: BookingItem[];
 }
 
 export function UpcomingBookings({ bookings }: UpcomingBookingsProps) {

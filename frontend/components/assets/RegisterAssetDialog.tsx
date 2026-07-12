@@ -170,12 +170,12 @@ export function RegisterAssetDialog({
     let mounted = true;
     (async () => {
       try {
-        const [{ getCategories }, { getDepartments }] = [await import("@/src/services/organization.service"), await import("@/src/services/organization.service")];
-        const cats = await getCategories();
-        const depts = await getDepartments();
+        const { organizationService } = await import("@/src/services/organization.service");
+        const cats = await organizationService.getCategories({ limit: 100 });
+        const depts = await organizationService.getDepartments({ limit: 100 });
         if (!mounted) return;
-        setRemoteCategories(cats);
-        setRemoteDepartments(depts);
+        setRemoteCategories(cats.categories || (cats as any));
+        setRemoteDepartments(depts.departments || (depts as any));
       } catch (err) {
         console.warn('Failed to load organization lists', err);
       }

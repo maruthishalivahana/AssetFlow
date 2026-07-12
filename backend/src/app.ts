@@ -52,6 +52,7 @@ export const createApp = (): Express => {
   app.use('/api/asset-categories', assetCategoriesRoutes);
   app.use('/api/organization', organizationRoutes);
   app.use('/api/assets', assetsRoutes);
+  app.use('/api/bookings', bookingsRoutes);
 
   // Serve uploaded files
   app.use('/uploads', express.static(uploadDir));

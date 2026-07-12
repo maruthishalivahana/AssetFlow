@@ -4,7 +4,6 @@ import { useAppSelector } from '../store/hooks';
 import { getAuthSession } from '../utils/authStorage';
 
 const unauthenticatedPaths = ['/signin', '/signup'];
-const protectedPaths = ['/dashboard', '/organization', '/assets', '/transfers', '/bookings', '/maintenance', '/reports', '/notifications'];
 
 export const useAuthGuard = () => {
     const router = useRouter();
@@ -15,13 +14,15 @@ export const useAuthGuard = () => {
         const session = typeof window !== 'undefined' ? getAuthSession() : null;
         const hasToken = !!accessToken || !!session?.accessToken;
 
-        if (!hasToken && protectedPaths.some((path) => pathname.startsWith(path))) {
+        // If no token and trying to access a protected route (anything other than signin/signup)
+        if (!hasToken && !unauthenticatedPaths.includes(pathname)) {
             router.replace('/signin');
             return;
         }
 
+        // If token exists and trying to access signin/signup
         if (hasToken && unauthenticatedPaths.includes(pathname)) {
-            router.replace('/dashboard');
+            router.replace('/'); // The dashboard is at '/'
         }
     }, [accessToken, isAuthenticated, pathname, router]);
 };

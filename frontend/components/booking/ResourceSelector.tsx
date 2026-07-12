@@ -1,5 +1,5 @@
 import React from "react";
-import { BookableResource } from "./mockData";
+import type { BookingResource } from "@/types/booking";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { CalendarDays, Building2, Monitor, Car } from "lucide-react";
 
 interface ResourceSelectorProps {
-  resources: BookableResource[];
+  resources: BookingResource[];
   selectedResourceId: string;
   onResourceChange: (id: string) => void;
   selectedDate: string;
@@ -59,8 +59,8 @@ export function ResourceSelector({
         <label className="text-xs text-slate-400 mb-1.5 block uppercase tracking-wider font-semibold">Date</label>
         <div className="relative">
           <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none" />
-          <Input 
-            type="date" 
+          <Input
+            type="date"
             value={selectedDate}
             onChange={(e) => onDateChange(e.target.value)}
             className="pl-9 bg-[#090909] border-[#262626] text-slate-200 w-full sm:w-[180px] custom-date-input"

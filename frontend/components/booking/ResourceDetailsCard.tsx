@@ -1,11 +1,11 @@
 import React from "react";
-import { BookableResource, Booking } from "./mockData";
+import type { BookingResource, BookingItem } from "@/types/booking";
 import { UpcomingBookings } from "./UpcomingBookings";
 import { Users, MapPin, Activity } from "lucide-react";
 
 interface ResourceDetailsCardProps {
-  resource: BookableResource | undefined;
-  todayBookings: Booking[];
+  resource: BookingResource | undefined;
+  todayBookings: BookingItem[];
 }
 
 export function ResourceDetailsCard({ resource, todayBookings }: ResourceDetailsCardProps) {
@@ -30,11 +30,10 @@ export function ResourceDetailsCard({ resource, todayBookings }: ResourceDetails
           <span className="text-xs text-slate-400 bg-[#262626]/50 px-2.5 py-0.5 rounded-full border border-[#262626]">
             {resource.type}
           </span>
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-            resource.status === 'Available' ? 'bg-emerald-500/10 text-emerald-500' :
-            resource.status === 'In Use' ? 'bg-blue-500/10 text-blue-500' :
-            'bg-amber-500/10 text-amber-500'
-          }`}>
+          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${resource.status === 'Available' ? 'bg-emerald-500/10 text-emerald-500' :
+              resource.status === 'In Use' ? 'bg-blue-500/10 text-blue-500' :
+                'bg-amber-500/10 text-amber-500'
+            }`}>
             {resource.status}
           </span>
         </div>

@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AssetCategory } from "./mockData";
+import { AssetCategory } from "@/src/types/organization";
 import { StatusBadge } from "./StatusBadge";
 import { Package, Calendar, Settings2, ShieldCheck } from "lucide-react";
 
@@ -35,10 +35,19 @@ export function CategoryDetailsDialog({
         <div className="space-y-6">
           <div>
             <h4 className="text-sm font-medium text-slate-400 mb-1">Description</h4>
-            <p className="text-sm text-slate-200">{category.description}</p>
+            <p className="text-sm text-slate-200">{category.description || "-"}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+            <div>
+              <h4 className="text-sm font-medium text-slate-400 mb-1">Code</h4>
+              <p className="text-sm text-slate-200 font-mono">{category.code}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium text-slate-400 mb-1">Parent Category</h4>
+              <p className="text-sm text-slate-200">{category.parentCategory?.name || "-"}</p>
+            </div>
+
             <div>
               <h4 className="text-sm font-medium text-slate-400 mb-2">Status</h4>
               <StatusBadge status={category.status} />
@@ -46,7 +55,7 @@ export function CategoryDetailsDialog({
 
             <div>
               <h4 className="text-sm font-medium text-slate-400 mb-1">Assets Assigned</h4>
-              <p className="text-sm font-semibold text-slate-200">{category.assetsCount}</p>
+              <p className="text-sm font-semibold text-slate-200">{category.assetsCount ?? 0}</p>
             </div>
           </div>
 
@@ -58,7 +67,7 @@ export function CategoryDetailsDialog({
                 <ShieldCheck className="h-4 w-4 text-slate-500" />
                 <span className="text-sm text-slate-300">Warranty Period</span>
               </div>
-              <span className="text-sm font-medium text-slate-200">{category.warrantyPeriod}</span>
+              <span className="text-sm font-medium text-slate-200">N/A</span>
             </div>
             
             <div className="flex items-center justify-between">
@@ -66,13 +75,13 @@ export function CategoryDetailsDialog({
                 <Settings2 className="h-4 w-4 text-slate-500" />
                 <span className="text-sm text-slate-300">Maintenance Interval</span>
               </div>
-              <span className="text-sm font-medium text-slate-200">{category.maintenanceInterval}</span>
+              <span className="text-sm font-medium text-slate-200">N/A</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500 pt-2 border-t border-border">
             <Calendar className="h-3 w-3" />
-            <span>Created on {new Date(category.createdDate).toLocaleDateString()}</span>
+            <span>Created on {new Date(category.createdAt).toLocaleDateString()}</span>
           </div>
         </div>
       </DialogContent>

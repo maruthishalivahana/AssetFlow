@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BookableResource } from "./mockData";
+import type { BookingResource, BookingCreatePayload } from "@/src/types/booking";
 import { BookingConflictAlert } from "./BookingConflictAlert";
+import { organizationService } from "@/src/services/organization.service";
 
 const bookingSchema = z.object({
   resourceId: z.string().min(1, "Resource is required"),
@@ -29,7 +30,7 @@ const bookingSchema = z.object({
   startTime: z.string().min(1, "Start Time is required"),
   endTime: z.string().min(1, "End Time is required"),
   purpose: z.string().min(1, "Purpose is required"),
-  department: z.string().min(1, "Department is required"),
+  departmentId: z.string().min(1, "Department is required"),
   attendees: z.coerce.number().min(1, "At least 1 attendee is required"),
   notes: z.string().optional(),
 });
@@ -39,11 +40,11 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 interface BookingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  resources: BookableResource[];
+  resources: BookingResource[];
   selectedResourceId?: string;
   selectedDate?: string;
-  onSave: (data: BookingFormValues) => void;
-  hasConflict?: boolean; // Mock prop to trigger the conflict UI for demo
+  onSave: (data: BookingCreatePayload) => Promise<void>;
+  hasConflict?: boolean;
 }
 
 export function BookingDialog({
@@ -53,10 +54,11 @@ export function BookingDialog({
   selectedResourceId,
   selectedDate,
   onSave,
-  hasConflict = false
+  hasConflict = false,
 }: BookingDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConflict, setShowConflict] = useState(hasConflict);
+  const [departments, setDepartments] = useState<{ id: string; name: string }[]>([]);
 
   const {
     register,
@@ -72,14 +74,26 @@ export function BookingDialog({
       startTime: "09:00",
       endTime: "10:00",
       purpose: "",
-      department: "",
+      departmentId: "",
       attendees: 1,
       notes: "",
     },
   });
 
-  // Re-sync defaults if props change while open
-  React.useEffect(() => {
+  useEffect(() => {
+    const loadDepartments = async () => {
+      try {
+        const response = await organizationService.getDepartments();
+        setDepartments(response?.items || []);
+      } catch {
+        setDepartments([]);
+      }
+    };
+
+    loadDepartments();
+  }, []);
+
+  useEffect(() => {
     if (open) {
       if (selectedResourceId) setValue("resourceId", selectedResourceId);
       if (selectedDate) setValue("date", selectedDate);
@@ -88,46 +102,52 @@ export function BookingDialog({
   }, [open, selectedResourceId, selectedDate, setValue, hasConflict]);
 
   const resourceId = watch("resourceId");
-  const department = watch("department");
+  const departmentId = watch("departmentId");
 
   const onSubmit = async (data: BookingFormValues) => {
-    // For demo purposes, we will pretend a specific time causes a conflict
     if (data.startTime === "14:30" && !showConflict) {
       setShowConflict(true);
       return;
     }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 800)); // Mock network
-    onSave(data);
-    setIsSubmitting(false);
-    onOpenChange(false);
-  };
 
-  const departments = ["Engineering", "HR", "Marketing", "Finance", "Operations", "Executive"];
+    try {
+      await onSave({
+        ...data,
+        title: data.purpose,
+      });
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] bg-[#111111] border-[#262626] text-white rounded-2xl shadow-lg p-0 max-h-[90vh] flex flex-col">
         <DialogHeader className="px-6 py-5 border-b border-[#262626]">
-          <DialogTitle className="text-xl font-heading text-slate-100">
-            Book Resource
-          </DialogTitle>
+          <DialogTitle className="text-xl font-heading text-slate-100">Book Resource</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          
           {showConflict && <BookingConflictAlert />}
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-slate-300">Resource <span className="text-red-500">*</span></Label>
+              <Label className="text-slate-300">
+                Resource <span className="text-red-500">*</span>
+              </Label>
               <Select value={resourceId} onValueChange={(val) => setValue("resourceId", val as string)}>
                 <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.resourceId ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select resource" />
                 </SelectTrigger>
                 <SelectContent>
-                  {resources.map(r => <SelectItem key={r.id} value={r.id}>{r.name} ({r.type})</SelectItem>)}
+                  {resources.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name} ({r.type})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.resourceId && <p className="text-xs text-red-500">{errors.resourceId.message}</p>}
@@ -135,7 +155,9 @@ export function BookingDialog({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date" className="text-slate-300">Date <span className="text-red-500">*</span></Label>
+                <Label htmlFor="date" className="text-slate-300">
+                  Date <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="date"
                   type="date"
@@ -146,7 +168,9 @@ export function BookingDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="startTime" className="text-slate-300">Start Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="startTime" className="text-slate-300">
+                  Start Time <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="startTime"
                   type="time"
@@ -157,7 +181,9 @@ export function BookingDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endTime" className="text-slate-300">End Time <span className="text-red-500">*</span></Label>
+                <Label htmlFor="endTime" className="text-slate-300">
+                  End Time <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="endTime"
                   type="time"
@@ -170,20 +196,28 @@ export function BookingDialog({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-slate-300">Department <span className="text-red-500">*</span></Label>
-                <Select value={department} onValueChange={(val) => setValue("department", val as string)}>
-                  <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.department ? "border-red-500" : ""}`}>
+                <Label className="text-slate-300">
+                  Department <span className="text-red-500">*</span>
+                </Label>
+                <Select value={departmentId} onValueChange={(val) => setValue("departmentId", val as string)}>
+                  <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.departmentId ? "border-red-500" : ""}`}>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
+                    {departments.map((department) => (
+                      <SelectItem key={department.id} value={department.id}>
+                        {department.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                {errors.department && <p className="text-xs text-red-500">{errors.department.message}</p>}
+                {errors.departmentId && <p className="text-xs text-red-500">{errors.departmentId.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="attendees" className="text-slate-300">Attendees <span className="text-red-500">*</span></Label>
+                <Label htmlFor="attendees" className="text-slate-300">
+                  Attendees <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="attendees"
                   type="number"
@@ -196,7 +230,9 @@ export function BookingDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="purpose" className="text-slate-300">Booking Purpose <span className="text-red-500">*</span></Label>
+              <Label htmlFor="purpose" className="text-slate-300">
+                Booking Purpose <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="purpose"
                 placeholder="e.g. Quarterly Planning Meeting"
@@ -207,7 +243,9 @@ export function BookingDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-slate-300">Additional Notes (Optional)</Label>
+              <Label htmlFor="notes" className="text-slate-300">
+                Additional Notes (Optional)
+              </Label>
               <textarea
                 id="notes"
                 rows={3}
@@ -227,18 +265,14 @@ export function BookingDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]"
-            >
+            <Button type="submit" disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
               ) : (
-                "Confirm Booking"
+                'Confirm Booking'
               )}
             </Button>
           </div>

@@ -23,15 +23,22 @@ import { EmployeeTable } from "./EmployeeTable";
 import { EmployeeDialog } from "./EmployeeDialog";
 import { RolePromotionDialog } from "./RolePromotionDialog";
 
+// Types
+import { Department, AssetCategory } from "@/src/types/organization";
+
+// Redux
+import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
+import { 
+  fetchDepartments, createDepartment, updateDepartment, deleteDepartment,
+  fetchCategories, createCategory, updateCategory, deleteCategory 
+} from "@/src/store/slices/organizationSlice";
+
+import { fetchUsers, createEmployee, updateEmployee, deleteEmployee } from "@/src/store/slices/usersSlice";
+
 // Mock Data
-import {
-  mockDepartments,
-  mockCategories,
-  mockEmployees,
-  Department,
-  AssetCategory,
-  Employee,
-} from "./mockData";
+import { Employee } from "./mockData";
+import { EmployeeFormDialog } from "./EmployeeFormDialog";
+import { AuthUser } from "@/src/types/auth";
 
 export function OrganizationTabs() {
   const router = useRouter();
@@ -52,23 +59,32 @@ export function OrganizationTabs() {
   const [deptFilter, setDeptFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
 
+  // Redux State
+  const dispatch = useAppDispatch();
+  const { departments, categories, isLoading } = useAppSelector(state => state.organization);
+  const { items: employees, loading: employeesLoading } = useAppSelector(state => state.users);
+
   // State for Departments
-  const [departments, setDepartments] = useState<Department[]>(mockDepartments);
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [isDeptAddEditOpen, setIsDeptAddEditOpen] = useState(false);
   const [isDeptViewOpen, setIsDeptViewOpen] = useState(false);
 
   // State for Categories
-  const [categories, setCategories] = useState<AssetCategory[]>(mockCategories);
   const [selectedCategory, setSelectedCategory] = useState<AssetCategory | null>(null);
   const [isCategoryAddEditOpen, setIsCategoryAddEditOpen] = useState(false);
   const [isCategoryViewOpen, setIsCategoryViewOpen] = useState(false);
 
   // State for Employees
-  const [employees, setEmployees] = useState<Employee[]>(mockEmployees);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<AuthUser | null>(null);
+  const [isEmployeeAddEditOpen, setIsEmployeeAddEditOpen] = useState(false);
   const [isEmployeeViewOpen, setIsEmployeeViewOpen] = useState(false);
   const [isRolePromotionOpen, setIsRolePromotionOpen] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchCategories());
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
   useEffect(() => {
     if (tabParam && ["departments", "categories", "employees"].includes(tabParam) && tabParam !== activeTab) {
@@ -93,9 +109,6 @@ export function OrganizationTabs() {
     } else if (activeTab === "categories") {
       setSelectedCategory(null);
       setIsCategoryAddEditOpen(true);
-    } else if (activeTab === "employees") {
-      // Typically opens an Add Employee dialog, not implemented fully in request but we can stub it or leave it as a no-op
-      console.log("Add employee clicked");
     }
   };
 
@@ -103,7 +116,7 @@ export function OrganizationTabs() {
   const filteredDepartments = departments.filter((d) => {
     const matchesSearch = d.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || d.status.toLowerCase() === statusFilter.toLowerCase();
-    const matchesParent = deptFilter === "all" || d.parentDept === deptFilter;
+    const matchesParent = deptFilter === "all" || d.parentDepartment?.name === deptFilter;
     return matchesSearch && matchesStatus && matchesParent;
   });
 
@@ -124,55 +137,53 @@ export function OrganizationTabs() {
   });
 
   // Handlers for Departments
-  const handleSaveDepartment = (data: any) => {
+  const handleSaveDepartment = async (data: any) => {
     if (selectedDept) {
-      // Edit
-      setDepartments(departments.map(d => d.id === selectedDept.id ? { ...d, ...data } : d));
+      await dispatch(updateDepartment({ id: selectedDept.id, data }));
     } else {
-      // Add
-      const newDept: Department = {
-        ...data,
-        id: `d${Date.now()}`,
-        headAvatar: "https://i.pravatar.cc/150",
-        employeesCount: 0,
-        assetsCount: 0,
-        createdDate: new Date().toISOString(),
-      };
-      setDepartments([newDept, ...departments]);
+      await dispatch(createDepartment(data));
     }
+    setIsDeptAddEditOpen(false);
   };
   
-  const handleDeleteDepartment = (dept: Department) => {
-    setDepartments(departments.filter(d => d.id !== dept.id));
+  const handleDeleteDepartment = async (dept: Department) => {
+    if (confirm("Are you sure you want to delete this department?")) {
+      await dispatch(deleteDepartment(dept.id));
+    }
   };
 
   // Handlers for Categories
-  const handleSaveCategory = (data: any) => {
+  const handleSaveCategory = async (data: any) => {
     if (selectedCategory) {
-      // Edit
-      setCategories(categories.map(c => c.id === selectedCategory.id ? { ...c, ...data } : c));
+      await dispatch(updateCategory({ id: selectedCategory.id, data }));
     } else {
-      // Add
-      const newCat: AssetCategory = {
-        ...data,
-        id: `c${Date.now()}`,
-        assetsCount: 0,
-        createdDate: new Date().toISOString(),
-      };
-      setCategories([newCat, ...categories]);
+      await dispatch(createCategory(data));
+    }
+    setIsCategoryAddEditOpen(false);
+  };
+
+  const handleDeleteCategory = async (cat: AssetCategory) => {
+    if (confirm("Are you sure you want to delete this category?")) {
+      await dispatch(deleteCategory(cat.id));
     }
   };
 
-  const handleDeleteCategory = (cat: AssetCategory) => {
-    setCategories(categories.filter(c => c.id !== cat.id));
-  };
-
   // Handlers for Employees
-  const handlePromoteEmployee = (employeeId: string, newRole: string) => {
-    setEmployees(employees.map(e => e.id === employeeId ? { ...e, role: newRole as any } : e));
+  const handleSaveEmployee = async (data: any) => {
+    if (selectedEmployee) {
+      await dispatch(updateEmployee({ id: selectedEmployee.id, payload: data }));
+    } else {
+      await dispatch(createEmployee(data));
+    }
+    setIsEmployeeAddEditOpen(false);
   };
 
-  const parentDeptOptions = Array.from(new Set(departments.map(d => d.parentDept).filter(Boolean))).map(d => ({
+  const handlePromoteEmployee = async (employeeId: string, newRole: string) => {
+    await dispatch(updateEmployee({ id: employeeId, payload: { role: newRole } }));
+    setIsRolePromotionOpen(false);
+  };
+
+  const parentDeptOptions = Array.from(new Set(departments.map(d => d.parentDepartment?.name).filter(Boolean))).map(d => ({
     label: d as string,
     value: d as string,
   }));
@@ -186,7 +197,7 @@ export function OrganizationTabs() {
 
   return (
     <div className="w-full h-full max-w-7xl mx-auto flex flex-col pt-6 pb-12 px-4 sm:px-6 lg:px-8">
-      <OrganizationHeader activeTab={activeTab} onAddClick={handleAddClick} />
+      <OrganizationHeader activeTab={activeTab} onAddClick={activeTab !== "employees" ? handleAddClick : undefined} />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mt-2">
         <div className="border-b border-border mb-6">
@@ -288,6 +299,8 @@ export function OrganizationTabs() {
 
       {/* Department Modals */}
       <DepartmentDialog 
+        departments={departments}
+        users={employees}
         open={isDeptAddEditOpen} 
         onOpenChange={setIsDeptAddEditOpen} 
         department={selectedDept}
@@ -301,6 +314,7 @@ export function OrganizationTabs() {
 
       {/* Category Modals */}
       <CategoryDialog
+        categories={categories}
         open={isCategoryAddEditOpen}
         onOpenChange={setIsCategoryAddEditOpen}
         category={selectedCategory}
@@ -313,10 +327,17 @@ export function OrganizationTabs() {
       />
 
       {/* Employee Modals */}
+      <EmployeeFormDialog
+        open={isEmployeeAddEditOpen}
+        onOpenChange={setIsEmployeeAddEditOpen}
+        employee={selectedEmployee}
+        onSave={handleSaveEmployee}
+        departments={departments}
+      />
       <EmployeeDialog
         open={isEmployeeViewOpen}
         onOpenChange={setIsEmployeeViewOpen}
-        employee={selectedEmployee}
+        employee={selectedEmployee as any}
       />
       <RolePromotionDialog
         open={isRolePromotionOpen}

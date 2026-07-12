@@ -8,20 +8,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Employee } from "./mockData";
+import { AuthUser } from "@/src/types/auth";
 import { StatusBadge } from "./StatusBadge";
-import { Eye, ShieldAlert } from "lucide-react";
+import { Eye, ShieldAlert, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface EmployeeTableProps {
-  employees: Employee[];
-  onView: (emp: Employee) => void;
-  onPromote: (emp: Employee) => void;
+  employees: AuthUser[];
+  onView: (emp: AuthUser) => void;
+  onEdit: (emp: AuthUser) => void;
+  onPromote: (emp: AuthUser) => void;
 }
 
 export function EmployeeTable({
   employees,
   onView,
+  onEdit,
   onPromote,
 }: EmployeeTableProps) {
   return (
@@ -53,25 +55,24 @@ export function EmployeeTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8 border border-border">
-                        <AvatarImage src={emp.avatarSrc} />
                         <AvatarFallback className="bg-slate-800 text-slate-300 text-xs">
-                          {emp.avatarInitials}
+                          {emp.firstName.charAt(0)}{emp.lastName.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col">
-                        <span className="font-medium text-slate-200">{emp.fullName}</span>
+                        <span className="font-medium text-slate-200">{emp.firstName} {emp.lastName}</span>
                         <span className="text-xs text-slate-500">{emp.email}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-slate-300">
-                    {emp.department}
+                    {emp.department?.name || 'None'}
                   </TableCell>
                   <TableCell className="text-slate-400 text-sm">
                     {emp.role}
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={emp.status} />
+                    <StatusBadge status={emp.status as any} />
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -83,6 +84,15 @@ export function EmployeeTable({
                         onClick={() => onView(emp)}
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10"
+                        title="Edit Employee"
+                        onClick={() => onEdit(emp)}
+                      >
+                        <Edit2 className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"

@@ -153,12 +153,12 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
 
           <div className="px-6 pb-6">
             {/* Note: asset.files should be returned by the API (array of { id, fileName, filePath, mimeType }) */}
-            {asset.files && asset.files.length > 0 && (
+            {(asset as any).files && (asset as any).files.length > 0 && (
               <div>
                 <div className="mt-4">
                   <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-3">Files & Documents</h4>
                   <div className="space-y-2">
-                    {asset.files.map((f: any) => (
+                    {(asset as any).files.map((f: any) => (
                       <div key={f.id} className="flex items-center justify-between gap-3 bg-[#090909] border border-[#262626] rounded-md p-3">
                         <div className="flex items-center gap-3">
                           <FileText className="w-5 h-5 text-slate-400" />

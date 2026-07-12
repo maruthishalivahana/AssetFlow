@@ -1,5 +1,5 @@
 import React from "react";
-import { Booking } from "./mockData";
+import type { BookingItem } from "@/src/types/booking";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/tooltip";
 
 interface BookingCardProps {
-  booking: Booking;
+  booking: BookingItem;
   top: number;
   height: number;
 }
 
 export function BookingCard({ booking, top, height }: BookingCardProps) {
-  const isConflict = booking.status === "Conflict";
+  const isConflict = (booking.status as string) === "Conflict";
 
   const baseClasses =
     "absolute left-12 right-2 rounded-lg text-sm overflow-hidden shadow-sm transition-all cursor-pointer";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Department } from "./mockData";
+import { Department } from "@/src/types/organization";
 import { StatusBadge } from "./StatusBadge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,28 +47,31 @@ export function DepartmentTable({
                 </TableCell>
               </TableRow>
             ) : (
-              departments.map((dept) => (
-                <TableRow
-                  key={dept.id}
-                  className="border-border hover:bg-slate-800/30 transition-colors group"
-                >
-                  <TableCell className="font-medium text-slate-200">
-                    {dept.name}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6 border border-border">
-                        <AvatarImage src={dept.headAvatar} />
-                        <AvatarFallback className="bg-slate-800 text-slate-300 text-[10px]">
-                          {dept.headName.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-slate-300">{dept.headName}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-slate-400">
-                    {dept.parentDept || "-"}
-                  </TableCell>
+              departments.map((dept) => {
+                const headName = dept.headUser 
+                  ? `${dept.headUser.firstName} ${dept.headUser.lastName}` 
+                  : "Unassigned";
+                return (
+                  <TableRow
+                    key={dept.id}
+                    className="border-border hover:bg-slate-800/30 transition-colors group"
+                  >
+                    <TableCell className="font-medium text-slate-200">
+                      {dept.name}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6 border border-border">
+                          <AvatarFallback className="bg-slate-800 text-slate-300 text-[10px]">
+                            {headName !== "Unassigned" ? headName.substring(0, 2).toUpperCase() : "-"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-slate-300">{headName}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-slate-400">
+                      {dept.parentDepartment?.name || "-"}
+                    </TableCell>
                   <TableCell>
                     <StatusBadge status={dept.status} />
                   </TableCell>
@@ -101,7 +104,8 @@ export function DepartmentTable({
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+              );
+            })
             )}
           </TableBody>
         </Table>

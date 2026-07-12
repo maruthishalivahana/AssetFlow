@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AssetCategory } from "./mockData";
+import { AssetCategory } from "@/src/types/organization";
 import { StatusBadge } from "./StatusBadge";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,12 +56,12 @@ export function CategoryTable({
                     {category.name}
                   </TableCell>
                   <TableCell className="text-slate-400 text-sm max-w-[200px] truncate">
-                    {category.description}
+                    {category.description || "-"}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-xs text-slate-300">{category.warrantyPeriod}</span>
-                      <span className="text-xs text-slate-500">{category.maintenanceInterval}</span>
+                      <span className="text-xs text-slate-300">N/A</span>
+                      <span className="text-xs text-slate-500">N/A</span>
                     </div>
                   </TableCell>
                   <TableCell>

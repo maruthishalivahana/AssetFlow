@@ -6,13 +6,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Employee } from "./mockData";
+import { AuthUser } from "@/src/types/auth";
 import { StatusBadge } from "./StatusBadge";
 import { Users, Calendar, Mail, Phone, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface EmployeeDialogProps {
-  employee: Employee | null;
+  employee: AuthUser | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -37,16 +37,15 @@ export function EmployeeDialog({
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 border-2 border-border">
-              <AvatarImage src={employee.avatarSrc} />
               <AvatarFallback className="bg-slate-800 text-slate-300 text-lg font-medium">
-                {employee.avatarInitials}
+                {employee.firstName.charAt(0)}{employee.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="text-lg font-semibold text-slate-100">{employee.fullName}</h3>
-              <p className="text-sm text-slate-400 font-mono">{employee.employeeId}</p>
+              <h3 className="text-lg font-semibold text-slate-100">{employee.firstName} {employee.lastName}</h3>
+              <p className="text-sm text-slate-400 font-mono">{employee.employeeCode}</p>
               <div className="mt-1 flex items-center gap-2">
-                <StatusBadge status={employee.status} />
+                <StatusBadge status={employee.status as any} />
                 <Badge variant="outline" className="text-xs bg-slate-900 border-border text-slate-300">
                   {employee.role}
                 </Badge>
@@ -66,14 +65,14 @@ export function EmployeeDialog({
               <h4 className="text-sm font-medium text-slate-400 mb-2 flex items-center gap-2">
                 <Phone className="h-4 w-4" /> Phone
               </h4>
-              <p className="text-sm text-slate-200">{employee.phone}</p>
+              <p className="text-sm text-slate-200">{employee.phone || 'N/A'}</p>
             </div>
 
             <div>
               <h4 className="text-sm font-medium text-slate-400 mb-2 flex items-center gap-2">
                 <Building className="h-4 w-4" /> Department
               </h4>
-              <p className="text-sm text-slate-200">{employee.department}</p>
+              <p className="text-sm text-slate-200">{employee.department?.name || 'None'}</p>
             </div>
 
             <div>
@@ -81,7 +80,7 @@ export function EmployeeDialog({
                 <Calendar className="h-4 w-4" /> Joining Date
               </h4>
               <p className="text-sm text-slate-200">
-                {new Date(employee.joiningDate).toLocaleDateString()}
+                {employee.createdAt ? new Date(employee.createdAt).toLocaleDateString() : 'N/A'}
               </p>
             </div>
           </div>
@@ -93,7 +92,7 @@ export function EmployeeDialog({
               </div>
               <div>
                 <p className="text-xs text-slate-400">Assets Assigned</p>
-                <p className="font-semibold text-slate-200">{employee.assetsAssigned}</p>
+                <p className="font-semibold text-slate-200">{(employee as any).assetsAssigned || 0}</p>
               </div>
             </div>
           </div>

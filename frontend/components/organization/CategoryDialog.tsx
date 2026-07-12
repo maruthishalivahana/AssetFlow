@@ -20,19 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AssetCategory } from "./mockData";
+import { AssetCategory } from "@/src/types/organization";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
-  description: z.string().min(1, "Description is required"),
-  warrantyPeriod: z.string().min(1, "Warranty period is required"),
-  maintenanceInterval: z.string().min(1, "Maintenance interval is required"),
-  status: z.enum(["Active", "Inactive"]),
+  code: z.string().min(1, "Code is required"),
+  description: z.string().optional(),
+  parentCategoryId: z.string().optional().nullable(),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryDialogProps {
+  categories: AssetCategory[];
   category?: AssetCategory | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -40,6 +41,7 @@ interface CategoryDialogProps {
 }
 
 export function CategoryDialog({
+  categories,
   category,
   open,
   onOpenChange,
@@ -59,42 +61,43 @@ export function CategoryDialog({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
+      code: "",
       description: "",
-      warrantyPeriod: "",
-      maintenanceInterval: "",
-      status: "Active",
+      parentCategoryId: "none",
+      status: "ACTIVE",
     },
   });
 
   const status = watch("status");
-  const warrantyPeriod = watch("warrantyPeriod");
-  const maintenanceInterval = watch("maintenanceInterval");
+  const parentCategoryId = watch("parentCategoryId");
 
   useEffect(() => {
     if (category && open) {
       reset({
         name: category.name,
-        description: category.description,
-        warrantyPeriod: category.warrantyPeriod,
-        maintenanceInterval: category.maintenanceInterval,
+        code: category.code,
+        description: category.description || "",
+        parentCategoryId: category.parentCategoryId || "none",
         status: category.status,
       });
     } else if (open && !category) {
       reset({
         name: "",
+        code: "",
         description: "",
-        warrantyPeriod: "1 Year",
-        maintenanceInterval: "12 Months",
-        status: "Active",
+        parentCategoryId: "none",
+        status: "ACTIVE",
       });
     }
   }, [category, open, reset]);
 
   const onSubmit = async (data: CategoryFormValues) => {
     setIsSubmitting(true);
-    // Mock network request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSave(data);
+    const payload = {
+      ...data,
+      parentCategoryId: data.parentCategoryId === "none" ? undefined : data.parentCategoryId,
+    };
+    await onSave(payload);
     setIsSubmitting(false);
     onOpenChange(false);
   };
@@ -109,63 +112,47 @@ export function CategoryDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-slate-300">Category Name <span className="text-red-500">*</span></Label>
-            <Input
-              id="name"
-              placeholder="e.g. Electronics"
-              className={`bg-slate-900 border-border text-slate-100 placeholder:text-slate-500 ${errors.name ? "border-red-500" : ""}`}
-              {...register("name")}
-            />
-            {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-slate-300">Description <span className="text-red-500">*</span></Label>
-            <textarea
-              id="description"
-              rows={3}
-              className={`w-full bg-slate-900 border border-border rounded-lg p-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${errors.description ? "border-red-500" : ""}`}
-              placeholder="Brief description of the category..."
-              {...register("description")}
-            />
-            {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-slate-300">Default Warranty</Label>
-              <Select value={warrantyPeriod} onValueChange={(val) => setValue("warrantyPeriod", val as string)}>
-                <SelectTrigger className="bg-slate-900 border-border text-slate-100">
-                  <SelectValue placeholder="Select warranty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="No Warranty">No Warranty</SelectItem>
-                  <SelectItem value="6 Months">6 Months</SelectItem>
-                  <SelectItem value="1 Year">1 Year</SelectItem>
-                  <SelectItem value="2 Years">2 Years</SelectItem>
-                  <SelectItem value="3 Years">3 Years</SelectItem>
-                  <SelectItem value="5 Years">5 Years</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="name" className="text-slate-300">Category Name <span className="text-red-500">*</span></Label>
+              <Input
+                id="name"
+                placeholder="e.g. Electronics"
+                className={`bg-slate-900 border-border text-slate-100 placeholder:text-slate-500 ${errors.name ? "border-red-500" : ""}`}
+                {...register("name")}
+              />
+              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-slate-300">Maintenance Interval</Label>
-              <Select value={maintenanceInterval} onValueChange={(val) => setValue("maintenanceInterval", val as string)}>
-                <SelectTrigger className="bg-slate-900 border-border text-slate-100">
-                  <SelectValue placeholder="Select interval" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="None">None</SelectItem>
-                  <SelectItem value="1 Month">1 Month</SelectItem>
-                  <SelectItem value="3 Months">3 Months</SelectItem>
-                  <SelectItem value="6 Months">6 Months</SelectItem>
-                  <SelectItem value="12 Months">12 Months</SelectItem>
-                  <SelectItem value="24 Months">24 Months</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="code" className="text-slate-300">Category Code <span className="text-red-500">*</span></Label>
+              <Input
+                id="code"
+                placeholder="e.g. CAT-01"
+                className={`bg-slate-900 border-border text-slate-100 placeholder:text-slate-500 ${errors.code ? "border-red-500" : ""}`}
+                {...register("code")}
+              />
+              {errors.code && <p className="text-xs text-red-500">{errors.code.message}</p>}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-slate-300">Parent Category</Label>
+            <Select value={parentCategoryId || "none"} onValueChange={(val) => setValue("parentCategoryId", val as string)}>
+              <SelectTrigger className="bg-slate-900 border-border text-slate-100">
+                <SelectValue placeholder="Select parent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None (Top Level)</SelectItem>
+                {categories
+                  .filter((c) => c.id !== category?.id)
+                  .map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -175,10 +162,22 @@ export function CategoryDialog({
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
+            <textarea
+              id="description"
+              rows={3}
+              className={`w-full bg-slate-900 border border-border rounded-lg p-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${errors.description ? "border-red-500" : ""}`}
+              placeholder="Brief description of the category..."
+              {...register("description")}
+            />
+            {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-border">

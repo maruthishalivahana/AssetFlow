@@ -1,9 +1,9 @@
 import React from "react";
-import { Booking } from "./mockData";
+import type { BookingItem } from "@/types/booking";
 import { BookingCard } from "./BookingCard";
 
 interface BookingTimelineProps {
-  bookings: Booking[];
+  bookings: BookingItem[];
 }
 
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
@@ -16,7 +16,7 @@ function getMinutesFrom8AM(timeStr: string) {
 }
 
 export function BookingTimeline({ bookings }: BookingTimelineProps) {
-  
+
   // Format hour label
   const formatHour = (hour: number) => {
     const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -34,9 +34,9 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
         {/* Background Grid */}
         <div className="absolute inset-0 pointer-events-none" style={{ height: `${HOURS.length * ROW_HEIGHT}px` }}>
           {HOURS.map((hour, idx) => (
-            <div 
-              key={hour} 
-              className="flex border-b border-[#262626]/50" 
+            <div
+              key={hour}
+              className="flex border-b border-[#262626]/50"
               style={{ height: `${ROW_HEIGHT}px` }}
             >
               <div className="w-16 shrink-0 border-r border-[#262626]/50 pr-4 pt-2 text-right">
@@ -59,7 +59,7 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
           {bookings.map((booking) => {
             const startMins = getMinutesFrom8AM(booking.startTime);
             const endMins = getMinutesFrom8AM(booking.endTime);
-            
+
             // Only render if within our 8 AM - 6 PM timeline
             if (endMins <= 0 || startMins >= (HOURS.length - 1) * 60) return null;
 
@@ -71,7 +71,7 @@ export function BookingTimeline({ bookings }: BookingTimelineProps) {
             const heightPx = ((boundedEnd - boundedStart) / 60) * ROW_HEIGHT;
 
             return (
-              <BookingCard 
+              <BookingCard
                 key={booking.id}
                 booking={booking}
                 top={topPx}

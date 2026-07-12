@@ -31,7 +31,7 @@ export function AssetsPage() {
   const [conditionFilter, setConditionFilter] = useState("all");
 
   // Modals State
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<AssetType | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -42,12 +42,12 @@ export function AssetsPage() {
 
   // Filter Logic
   const filteredAssets = useMemo(() => {
-    return assets.filter((asset) => {
+    return assets.filter((asset: any) => {
       const q = searchQuery.toLowerCase();
       const matchSearch =
-        asset.name.toLowerCase().includes(q) ||
-        asset.tag.toLowerCase().includes(q) ||
-        asset.serialNumber.toLowerCase().includes(q);
+        (asset.name || '').toLowerCase().includes(q) ||
+        (asset.assetTag || asset.tag || '').toLowerCase().includes(q) ||
+        (asset.serialNumber || '').toLowerCase().includes(q);
 
       const matchCat = categoryFilter === "all" || asset.category === categoryFilter;
       const matchStat = statusFilter === "all" || asset.status === statusFilter;
@@ -115,10 +115,10 @@ export function AssetsPage() {
       ) : (
         <div className="flex flex-col gap-2">
           <AssetTable
-            assets={filteredAssets}
-            onView={(asset) => { setSelectedAsset(asset); setIsViewOpen(true); }}
-            onEdit={(asset) => { setSelectedAsset(asset); setIsRegisterOpen(true); }}
-            onDelete={(asset) => { setSelectedAsset(asset); setIsDeleteOpen(true); }}
+            assets={filteredAssets as any}
+            onView={(asset: any) => { setSelectedAsset(asset); setIsViewOpen(true); }}
+            onEdit={(asset: any) => { setSelectedAsset(asset); setIsRegisterOpen(true); }}
+            onDelete={(asset: any) => { setSelectedAsset(asset); setIsDeleteOpen(true); }}
           />
           <AssetPagination
             currentShowing={filteredAssets.length}
@@ -131,12 +131,12 @@ export function AssetsPage() {
       <ViewAssetDialog
         open={isViewOpen}
         onOpenChange={setIsViewOpen}
-        asset={selectedAsset}
+        asset={selectedAsset as any}
       />
       <RegisterAssetDialog
         open={isRegisterOpen}
         onOpenChange={setIsRegisterOpen}
-        asset={selectedAsset}
+        asset={selectedAsset as any}
         onSave={handleSaveAsset}
         departments={departments}
         locations={locations}
@@ -144,7 +144,7 @@ export function AssetsPage() {
       <DeleteAssetDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        asset={selectedAsset}
+        asset={selectedAsset as any}
         onConfirm={handleDeleteAsset}
       />
     </div>

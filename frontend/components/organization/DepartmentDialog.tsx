@@ -20,20 +20,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Department } from "./mockData";
+import { Department } from "@/src/types/organization";
+import { AuthUser } from "@/src/types/auth";
 
 const departmentSchema = z.object({
   name: z.string().min(1, "Department name is required"),
   code: z.string().min(1, "Code is required"),
-  headName: z.string().min(1, "Department Head is required"),
-  parentDept: z.string().optional(),
-  description: z.string().optional(),
-  status: z.enum(["Active", "Inactive"]),
+  parentDepartmentId: z.string().optional().nullable(),
+  headUserId: z.string().optional().nullable(),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
 });
 
 type DepartmentFormValues = z.infer<typeof departmentSchema>;
 
 interface DepartmentDialogProps {
+  departments: Department[];
+  users: AuthUser[];
   department?: Department | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,6 +43,8 @@ interface DepartmentDialogProps {
 }
 
 export function DepartmentDialog({
+  departments,
+  users,
   department,
   open,
   onOpenChange,
@@ -61,14 +65,14 @@ export function DepartmentDialog({
     defaultValues: {
       name: "",
       code: "",
-      headName: "",
-      parentDept: "none",
-      description: "",
-      status: "Active",
+      parentDepartmentId: "none",
+      headUserId: "none",
+      status: "ACTIVE",
     },
   });
 
-  const parentDept = watch("parentDept");
+  const parentDept = watch("parentDepartmentId");
+  const headUser = watch("headUserId");
   const status = watch("status");
 
   useEffect(() => {
@@ -76,28 +80,29 @@ export function DepartmentDialog({
       reset({
         name: department.name,
         code: department.code,
-        headName: department.headName,
-        parentDept: department.parentDept || "none",
-        description: department.description || "",
+        parentDepartmentId: department.parentDepartmentId || "none",
+        headUserId: department.headUserId || "none",
         status: department.status,
       });
     } else if (open && !department) {
       reset({
         name: "",
         code: "",
-        headName: "",
-        parentDept: "none",
-        description: "",
-        status: "Active",
+        parentDepartmentId: "none",
+        headUserId: "none",
+        status: "ACTIVE",
       });
     }
   }, [department, open, reset]);
 
   const onSubmit = async (data: DepartmentFormValues) => {
     setIsSubmitting(true);
-    // Mock network request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSave(data);
+    const payload = {
+      ...data,
+      parentDepartmentId: data.parentDepartmentId === "none" ? undefined : data.parentDepartmentId,
+      headUserId: data.headUserId === "none" ? undefined : data.headUserId,
+    };
+    await onSave(payload);
     setIsSubmitting(false);
     onOpenChange(false);
   };
@@ -137,27 +142,37 @@ export function DepartmentDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="headName" className="text-slate-300">Department Head <span className="text-red-500">*</span></Label>
-            <Input
-              id="headName"
-              placeholder="e.g. Aditi Rao"
-              className={`bg-slate-900 border-border text-slate-100 placeholder:text-slate-500 ${errors.headName ? "border-red-500" : ""}`}
-              {...register("headName")}
-            />
-            {errors.headName && <p className="text-xs text-red-500">{errors.headName.message}</p>}
-          </div>
-
-          <div className="space-y-2">
             <Label className="text-slate-300">Parent Department</Label>
-            <Select value={parentDept} onValueChange={(val) => setValue("parentDept", val as string)}>
+            <Select value={parentDept || "none"} onValueChange={(val) => setValue("parentDepartmentId", val as string)}>
               <SelectTrigger className="bg-slate-900 border-border text-slate-100">
                 <SelectValue placeholder="Select parent" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None (Top Level)</SelectItem>
-                <SelectItem value="Engineering">Engineering</SelectItem>
-                <SelectItem value="Field Ops">Field Ops</SelectItem>
-                <SelectItem value="HR">HR</SelectItem>
+                {departments
+                  .filter((d) => d.id !== department?.id) // Prevent self as parent
+                  .map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-slate-300">Department Head</Label>
+            <Select value={headUser || "none"} onValueChange={(val) => setValue("headUserId", val as string)}>
+              <SelectTrigger className="bg-slate-900 border-border text-slate-100">
+                <SelectValue placeholder="Select head" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {users.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.firstName} {u.lastName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -169,21 +184,10 @@ export function DepartmentDialog({
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Inactive">Inactive</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-slate-300">Description (Optional)</Label>
-            <textarea
-              id="description"
-              rows={3}
-              className="w-full bg-slate-900 border border-border rounded-lg p-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              placeholder="Brief description of the department's role..."
-              {...register("description")}
-            />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-border">
