@@ -1,7 +1,27 @@
 import type { Role, UserStatus } from '@prisma/client';
 
-export interface UpdateRoleInput {
-  role: Role;
+export interface CreateEmployeeInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string; // Optional: default to a standard password if not provided
+  phone?: string | null;
+  employeeCode?: string | null;
+  jobTitle?: string | null;
+  departmentId?: string | null;
+  role?: Role;
+}
+
+export interface UpdateEmployeeInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string | null;
+  employeeCode?: string | null;
+  jobTitle?: string | null;
+  departmentId?: string | null;
+  role?: Role;
+  status?: UserStatus;
 }
 
 export interface UserResponseDto {
@@ -40,4 +60,9 @@ export interface PaginatedUsersResponse {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface UserDropdownItem {
+  id: string;
+  name: string;
 }
