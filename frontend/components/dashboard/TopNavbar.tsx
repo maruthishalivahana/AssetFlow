@@ -39,10 +39,15 @@ export function TopNavbar({ onMenuClick }: TopNavbarProps) {
       <div className="flex items-center gap-4 flex-1">
         {/* Mobile menu trigger */}
         <Sheet>
-          <SheetTrigger>
-            <button className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <Menu className="w-5 h-5" />
-            </button>
+          <SheetTrigger
+            render={
+              <button
+                type="button"
+                className="md:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            }
+          >
+            <Menu className="w-5 h-5" />
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-[280px] border-border bg-background">
             <Sidebar isCollapsed={false} onToggle={() => { }} className="w-full border-none h-full" />

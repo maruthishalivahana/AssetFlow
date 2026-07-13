@@ -97,14 +97,17 @@ export function DepartmentDialog({
 
   const onSubmit = async (data: DepartmentFormValues) => {
     setIsSubmitting(true);
-    const payload = {
-      ...data,
-      parentDepartmentId: data.parentDepartmentId === "none" ? undefined : data.parentDepartmentId,
-      headUserId: data.headUserId === "none" ? undefined : data.headUserId,
-    };
-    await onSave(payload);
-    setIsSubmitting(false);
-    onOpenChange(false);
+    try {
+      const payload = {
+        ...data,
+        parentDepartmentId: data.parentDepartmentId === "none" ? undefined : data.parentDepartmentId,
+        headUserId: data.headUserId === "none" ? undefined : data.headUserId,
+      };
+      await onSave(payload);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -12,6 +12,7 @@ import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AssetStatusBadge } from "./AssetStatusBadge";
 import { AssetConditionBadge } from "./AssetConditionBadge";
+import { getRelationLabel } from "./assetDisplay";
 
 interface AssetTableProps {
   assets: Asset[];
@@ -50,13 +51,13 @@ export function AssetTable({ assets, onView, onEdit, onDelete }: AssetTableProps
                   {asset.name}
                 </TableCell>
                 <TableCell className="text-slate-400 text-sm">
-                  {asset.category}
+                  {getRelationLabel((asset as any).category || (asset as any).assetCategory)}
                 </TableCell>
                 <TableCell className="text-slate-400 font-mono text-sm">
                   {asset.serialNumber}
                 </TableCell>
                 <TableCell className="text-slate-300">
-                  {asset.department}
+                  {getRelationLabel((asset as any).department)}
                 </TableCell>
                 <TableCell>
                   <AssetStatusBadge status={asset.status} />

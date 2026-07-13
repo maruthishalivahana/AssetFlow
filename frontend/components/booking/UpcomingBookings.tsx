@@ -22,7 +22,8 @@ export function UpcomingBookings({ bookings }: UpcomingBookingsProps) {
   return (
     <div className="space-y-3">
       {sortedBookings.map((booking) => {
-        const initials = booking.bookedBy.split(" ").map(n => n[0]).join("").substring(0, 2);
+        const bookedByName = booking.bookedBy || "Unknown User";
+        const initials = bookedByName.split(" ").map(n => n[0]).join("").substring(0, 2);
 
         return (
           <div key={booking.id} className="bg-[#090909] border border-[#262626] rounded-xl p-3 flex gap-3 hover:bg-[#151515] transition-colors">

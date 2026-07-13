@@ -93,13 +93,16 @@ export function CategoryDialog({
 
   const onSubmit = async (data: CategoryFormValues) => {
     setIsSubmitting(true);
-    const payload = {
-      ...data,
-      parentCategoryId: data.parentCategoryId === "none" ? undefined : data.parentCategoryId,
-    };
-    await onSave(payload);
-    setIsSubmitting(false);
-    onOpenChange(false);
+    try {
+      const payload = {
+        ...data,
+        parentCategoryId: data.parentCategoryId === "none" ? undefined : data.parentCategoryId,
+      };
+      await onSave(payload);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

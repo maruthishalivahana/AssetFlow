@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AssetCategory, AssetStatus, AssetCondition } from "./mockData";
+import { assetConditionOptions } from "./assetDisplay";
 
 interface AssetToolbarProps {
   searchQuery: string;
@@ -23,7 +24,7 @@ interface AssetToolbarProps {
   onLocationChange: (val: string) => void;
   conditionFilter: string;
   onConditionChange: (val: string) => void;
-  
+
   // Data for dynamic dropdowns
   departments: string[];
   locations: string[];
@@ -45,14 +46,14 @@ export function AssetToolbar({
   departments,
   locations,
 }: AssetToolbarProps) {
-  
+
   const categories: AssetCategory[] = ["Electronics", "Furniture", "Vehicles", "Network", "IT Equipment", "AV Equipment"];
   const statuses: AssetStatus[] = ["Available", "Allocated", "Maintenance", "Reserved", "Lost", "Disposed", "Retired"];
-  const conditions: AssetCondition[] = ["Excellent", "Good", "Fair", "Poor", "New"];
+  const conditions = assetConditionOptions;
 
   return (
     <div className="bg-[#111111] border border-[#262626] rounded-2xl p-4 mb-6 flex flex-wrap gap-4 items-center">
-      
+
       {/* Search Input */}
       <div className="relative flex-grow min-w-[280px] lg:max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
@@ -124,7 +125,7 @@ export function AssetToolbar({
         <SelectContent>
           <SelectItem value="all">All Conditions</SelectItem>
           {conditions.map((c) => (
-            <SelectItem key={c} value={c}>{c}</SelectItem>
+            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
           ))}
         </SelectContent>
       </Select>

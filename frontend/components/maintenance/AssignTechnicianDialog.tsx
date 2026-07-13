@@ -72,7 +72,7 @@ export function AssignTechnicianDialog({
             <Label className="text-slate-300">
               Technician <span className="text-red-500">*</span>
             </Label>
-            <Select value={technicianId} onValueChange={setTechnicianId}>
+            <Select value={technicianId} onValueChange={(v) => setTechnicianId(v || "")}>
               <SelectTrigger
                 className={`bg-[#090909] border-[#262626] text-slate-100 ${!technicianId ? "text-slate-500" : ""}`}
               >

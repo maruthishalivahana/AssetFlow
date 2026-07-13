@@ -16,11 +16,7 @@ export function ResourceDetailsCard({ resource, todayBookings }: ResourceDetails
       <div className="mb-6">
         {/* Placeholder for Resource Image */}
         <div className="w-full h-32 bg-[#090909] rounded-xl border border-[#262626] mb-4 flex items-center justify-center overflow-hidden">
-          {resource.imageUrl ? (
-            <img src={resource.imageUrl} alt={resource.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-slate-600 font-medium">{resource.type} Image</span>
-          )}
+          <span className="text-slate-600 font-medium">{resource.type} Image</span>
         </div>
 
         <h2 className="text-xl font-heading font-semibold text-slate-50 mb-1">

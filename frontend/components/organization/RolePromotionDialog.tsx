@@ -16,13 +16,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Employee, EmployeeRole } from "./mockData";
+import { AuthUser } from "@/src/types/auth";
+
+const roleOptions: Array<{ label: string; value: string }> = [
+  { label: "Employee", value: "EMPLOYEE" },
+  { label: "Asset Manager", value: "ASSET_MANAGER" },
+  { label: "Department Head", value: "DEPARTMENT_HEAD" },
+  { label: "Administrator", value: "ADMIN" },
+];
 
 interface RolePromotionDialogProps {
-  employee: Employee | null;
+  employee: AuthUser | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (employeeId: string, newRole: EmployeeRole) => void;
+  onSave: (employeeId: string, newRole: string) => void;
 }
 
 export function RolePromotionDialog({
@@ -31,7 +38,7 @@ export function RolePromotionDialog({
   onOpenChange,
   onSave,
 }: RolePromotionDialogProps) {
-  const [selectedRole, setSelectedRole] = useState<EmployeeRole | "">("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Reset selected role when modal opens
@@ -48,11 +55,12 @@ export function RolePromotionDialog({
     if (!selectedRole || selectedRole === employee.role) return;
 
     setIsSubmitting(true);
-    // Mock network request
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSave(employee.id, selectedRole as EmployeeRole);
-    setIsSubmitting(false);
-    onOpenChange(false);
+    try {
+      await onSave(employee.id, selectedRole);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -67,7 +75,7 @@ export function RolePromotionDialog({
         <form onSubmit={handleSubmit} className="space-y-6 mt-2">
           <div>
             <p className="text-sm text-slate-400 mb-4">
-              Update role for <strong className="text-slate-200">{employee.fullName}</strong>.
+              Update role for <strong className="text-slate-200">{employee.firstName} {employee.lastName}</strong>.
             </p>
 
             <div className="space-y-2">
@@ -77,10 +85,11 @@ export function RolePromotionDialog({
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Employee">Employee</SelectItem>
-                  <SelectItem value="Asset Manager">Asset Manager</SelectItem>
-                  <SelectItem value="Department Head">Department Head</SelectItem>
-                  <SelectItem value="Administrator">Administrator</SelectItem>
+                  {roleOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

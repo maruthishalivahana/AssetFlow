@@ -12,15 +12,24 @@ import { RegisterAssetDialog } from "./RegisterAssetDialog";
 import { DeleteAssetDialog } from "./DeleteAssetDialog";
 import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
 import { fetchAssets, createAsset as createAssetAction, updateAsset as updateAssetAction, removeAsset as removeAssetAction, fetchAsset } from "@/src/store/slices/assetSlice";
+import { fetchDepartments } from "@/src/store/slices/organizationSlice";
 import type { Asset as AssetType } from "@/src/store/slices/assetSlice";
+import { getRelationLabel } from "./assetDisplay";
 
 export function AssetsPage() {
   const dispatch = useAppDispatch();
   const { items: assets, loading } = useAppSelector((s) => s.assets);
+  const { departments } = useAppSelector((s) => s.organization);
 
   useEffect(() => {
     dispatch(fetchAssets({ page: 1, limit: 50 }));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (departments.length === 0) {
+      dispatch(fetchDepartments({ limit: 100 }));
+    }
+  }, [dispatch, departments.length]);
 
   // Filters State
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,8 +46,18 @@ export function AssetsPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // Derived Options for Dropdowns
-  const departments = useMemo(() => Array.from(new Set(assets.map((a: any) => a.department || a.department?.name || 'Unassigned'))), [assets]);
-  const locations = useMemo(() => Array.from(new Set(assets.map((a: any) => a.location || 'Unknown'))), [assets]);
+  const departmentOptions = useMemo(
+    () => departments.map((department) => ({ id: department.id, name: department.name })),
+    [departments],
+  );
+  const departmentLabels = useMemo(
+    () => departmentOptions.map((department) => department.name),
+    [departmentOptions],
+  );
+  const locations = useMemo(
+    () => Array.from(new Set(assets.map((a: any) => getRelationLabel(a.location) || 'Unknown'))),
+    [assets],
+  );
 
   // Filter Logic
   const filteredAssets = useMemo(() => {
@@ -49,10 +68,14 @@ export function AssetsPage() {
         (asset.assetTag || asset.tag || '').toLowerCase().includes(q) ||
         (asset.serialNumber || '').toLowerCase().includes(q);
 
-      const matchCat = categoryFilter === "all" || asset.category === categoryFilter;
+      const assetCategory = getRelationLabel(asset.category || asset.assetCategory);
+      const assetDepartment = getRelationLabel(asset.department);
+      const assetLocation = getRelationLabel(asset.location);
+
+      const matchCat = categoryFilter === "all" || assetCategory === categoryFilter;
       const matchStat = statusFilter === "all" || asset.status === statusFilter;
-      const matchDept = departmentFilter === "all" || asset.department === departmentFilter;
-      const matchLoc = locationFilter === "all" || asset.location === locationFilter;
+      const matchDept = departmentFilter === "all" || assetDepartment === departmentFilter;
+      const matchLoc = locationFilter === "all" || assetLocation === locationFilter;
       const matchCond = conditionFilter === "all" || asset.condition === conditionFilter;
 
       return matchSearch && matchCat && matchStat && matchDept && matchLoc && matchCond;
@@ -65,11 +88,12 @@ export function AssetsPage() {
     setIsRegisterOpen(true);
   };
 
-  const handleSaveAsset = (data: any) => {
+  const handleSaveAsset = async (data: any) => {
     const payload = {
       name: data.name,
       assetCategoryId: data.category,
       departmentId: data.department,
+      location: data.location,
       serialNumber: data.serialNumber,
       description: data.description,
       purchaseDate: data.purchaseDate,
@@ -79,14 +103,19 @@ export function AssetsPage() {
     };
 
     if (selectedAsset) {
-      dispatch(updateAssetAction({ id: selectedAsset.id, payload, files: undefined }));
+      await dispatch(updateAssetAction({ id: selectedAsset.id, payload, files: undefined })).unwrap();
     } else {
-      dispatch(createAssetAction({ payload, files: undefined }));
+      await dispatch(createAssetAction({ payload, files: undefined })).unwrap();
     }
+
+    await dispatch(fetchAssets({ page: 1, limit: 50 }));
+    setIsRegisterOpen(false);
+    setSelectedAsset(null);
   };
 
-  const handleDeleteAsset = (id: string) => {
-    dispatch(removeAssetAction(id));
+  const handleDeleteAsset = async (id: string) => {
+    await dispatch(removeAssetAction(id)).unwrap();
+    await dispatch(fetchAssets({ page: 1, limit: 50 }));
   };
 
   return (
@@ -106,7 +135,7 @@ export function AssetsPage() {
         onLocationChange={setLocationFilter}
         conditionFilter={conditionFilter}
         onConditionChange={setConditionFilter}
-        departments={departments}
+        departments={departmentLabels}
         locations={locations}
       />
 
@@ -138,8 +167,7 @@ export function AssetsPage() {
         onOpenChange={setIsRegisterOpen}
         asset={selectedAsset as any}
         onSave={handleSaveAsset}
-        departments={departments}
-        locations={locations}
+        departments={departmentOptions}
       />
       <DeleteAssetDialog
         open={isDeleteOpen}

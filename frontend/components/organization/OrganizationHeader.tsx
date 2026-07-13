@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 interface OrganizationHeaderProps {
   activeTab: string;
-  onAddClick: () => void;
+  onAddClick?: () => void;
 }
 
 export function OrganizationHeader({ activeTab, onAddClick }: OrganizationHeaderProps) {
@@ -32,13 +32,15 @@ export function OrganizationHeader({ activeTab, onAddClick }: OrganizationHeader
         </p>
       </div>
       
-      <Button 
-        onClick={onAddClick}
-        className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px] shadow-sm transition-all hover:shadow-emerald-900/20"
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        {getButtonText()}
-      </Button>
+      {onAddClick && (
+        <Button 
+          onClick={onAddClick}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px] shadow-sm transition-all hover:shadow-emerald-900/20"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {getButtonText()}
+        </Button>
+      )}
     </div>
   );
 }

@@ -68,7 +68,10 @@ client.interceptors.response.use(
     (error: AxiosError) => {
         const status = error.response?.status;
 
-        if (status === 401 || status === 403) {
+        // Only clear session on 401 (invalid/expired token).
+        // 403 means "forbidden" (role mismatch) — the token is still valid,
+        // so we must NOT wipe it or redirect to signin.
+        if (status === 401) {
             handleUnauthorized();
         }
 

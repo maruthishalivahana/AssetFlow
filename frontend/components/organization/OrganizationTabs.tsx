@@ -28,9 +28,9 @@ import { Department, AssetCategory } from "@/src/types/organization";
 
 // Redux
 import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
-import { 
+import {
   fetchDepartments, createDepartment, updateDepartment, deleteDepartment,
-  fetchCategories, createCategory, updateCategory, deleteCategory 
+  fetchCategories, createCategory, updateCategory, deleteCategory
 } from "@/src/store/slices/organizationSlice";
 
 import { fetchUsers, createEmployee, updateEmployee, deleteEmployee } from "@/src/store/slices/usersSlice";
@@ -54,7 +54,7 @@ export function OrganizationTabs() {
   // Global UI State
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  
+
   // Tab Specific Filters
   const [deptFilter, setDeptFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -129,9 +129,10 @@ export function OrganizationTabs() {
 
   // Derived Data for Employees
   const filteredEmployees = employees.filter((e) => {
-    const matchesSearch = e.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          e.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || e.status.toLowerCase() === statusFilter.toLowerCase();
+    const fullName = `${e.firstName} ${e.lastName}`.trim();
+    const matchesSearch = fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || (e.status || "").toLowerCase() === statusFilter.toLowerCase();
     const matchesRole = roleFilter === "all" || e.role === roleFilter;
     return matchesSearch && matchesStatus && matchesRole;
   });
@@ -139,47 +140,62 @@ export function OrganizationTabs() {
   // Handlers for Departments
   const handleSaveDepartment = async (data: any) => {
     if (selectedDept) {
-      await dispatch(updateDepartment({ id: selectedDept.id, data }));
+      await dispatch(updateDepartment({ id: selectedDept.id, data })).unwrap();
     } else {
-      await dispatch(createDepartment(data));
+      await dispatch(createDepartment(data)).unwrap();
     }
+
+    await dispatch(fetchDepartments());
     setIsDeptAddEditOpen(false);
+    setSelectedDept(null);
   };
-  
+
   const handleDeleteDepartment = async (dept: Department) => {
     if (confirm("Are you sure you want to delete this department?")) {
-      await dispatch(deleteDepartment(dept.id));
+      await dispatch(deleteDepartment(dept.id)).unwrap();
+      await dispatch(fetchDepartments());
     }
   };
 
   // Handlers for Categories
   const handleSaveCategory = async (data: any) => {
     if (selectedCategory) {
-      await dispatch(updateCategory({ id: selectedCategory.id, data }));
+      await dispatch(updateCategory({ id: selectedCategory.id, data })).unwrap();
     } else {
-      await dispatch(createCategory(data));
+      await dispatch(createCategory(data)).unwrap();
     }
+    await dispatch(fetchCategories());
     setIsCategoryAddEditOpen(false);
+    setSelectedCategory(null);
   };
 
   const handleDeleteCategory = async (cat: AssetCategory) => {
     if (confirm("Are you sure you want to delete this category?")) {
-      await dispatch(deleteCategory(cat.id));
+      await dispatch(deleteCategory(cat.id)).unwrap();
+      await dispatch(fetchCategories());
     }
   };
 
   // Handlers for Employees
   const handleSaveEmployee = async (data: any) => {
     if (selectedEmployee) {
-      await dispatch(updateEmployee({ id: selectedEmployee.id, payload: data }));
+      await dispatch(updateEmployee({ id: selectedEmployee.id, payload: data })).unwrap();
     } else {
-      await dispatch(createEmployee(data));
+      await dispatch(createEmployee(data)).unwrap();
     }
+    await dispatch(fetchUsers());
     setIsEmployeeAddEditOpen(false);
+    setSelectedEmployee(null);
+  };
+
+  const handleEditEmployee = (employee: AuthUser) => {
+    setSelectedEmployee(employee);
+    setIsEmployeeAddEditOpen(true);
   };
 
   const handlePromoteEmployee = async (employeeId: string, newRole: string) => {
-    await dispatch(updateEmployee({ id: employeeId, payload: { role: newRole } }));
+    await dispatch(updateEmployee({ id: employeeId, payload: { role: newRole as any } })).unwrap();
+    await dispatch(fetchUsers());
     setIsRolePromotionOpen(false);
   };
 
@@ -202,20 +218,20 @@ export function OrganizationTabs() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mt-2">
         <div className="border-b border-border mb-6">
           <TabsList className="bg-transparent h-12 p-0 space-x-6 overflow-x-auto w-full justify-start overflow-y-hidden">
-            <TabsTrigger 
-              value="departments" 
+            <TabsTrigger
+              value="departments"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 text-slate-400 px-1 py-3"
             >
               Departments
             </TabsTrigger>
-            <TabsTrigger 
-              value="categories" 
+            <TabsTrigger
+              value="categories"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 text-slate-400 px-1 py-3"
             >
               Categories
             </TabsTrigger>
-            <TabsTrigger 
-              value="employees" 
+            <TabsTrigger
+              value="employees"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-emerald-500 data-[state=active]:bg-transparent data-[state=active]:text-emerald-500 text-slate-400 px-1 py-3"
             >
               Employees
@@ -234,7 +250,7 @@ export function OrganizationTabs() {
             >
               {activeTab === "departments" && (
                 <TabsContent value="departments" className="mt-0 outline-none">
-                  <OrganizationToolbar 
+                  <OrganizationToolbar
                     searchPlaceholder="Search departments..."
                     searchValue={searchQuery}
                     onSearchChange={setSearchQuery}
@@ -245,8 +261,8 @@ export function OrganizationTabs() {
                     onExtraFilterChange={setDeptFilter}
                     extraFilterOptions={parentDeptOptions}
                   />
-                  <DepartmentTable 
-                    departments={filteredDepartments} 
+                  <DepartmentTable
+                    departments={filteredDepartments}
                     onView={(dept) => { setSelectedDept(dept); setIsDeptViewOpen(true); }}
                     onEdit={(dept) => { setSelectedDept(dept); setIsDeptAddEditOpen(true); }}
                     onDelete={handleDeleteDepartment}
@@ -256,14 +272,14 @@ export function OrganizationTabs() {
 
               {activeTab === "categories" && (
                 <TabsContent value="categories" className="mt-0 outline-none">
-                  <OrganizationToolbar 
+                  <OrganizationToolbar
                     searchPlaceholder="Search categories..."
                     searchValue={searchQuery}
                     onSearchChange={setSearchQuery}
                     statusFilter={statusFilter}
                     onStatusFilterChange={setStatusFilter}
                   />
-                  <CategoryTable 
+                  <CategoryTable
                     categories={filteredCategories}
                     onView={(cat) => { setSelectedCategory(cat); setIsCategoryViewOpen(true); }}
                     onEdit={(cat) => { setSelectedCategory(cat); setIsCategoryAddEditOpen(true); }}
@@ -274,7 +290,7 @@ export function OrganizationTabs() {
 
               {activeTab === "employees" && (
                 <TabsContent value="employees" className="mt-0 outline-none">
-                  <OrganizationToolbar 
+                  <OrganizationToolbar
                     searchPlaceholder="Search employees by name or email..."
                     searchValue={searchQuery}
                     onSearchChange={setSearchQuery}
@@ -285,9 +301,10 @@ export function OrganizationTabs() {
                     onExtraFilterChange={setRoleFilter}
                     extraFilterOptions={roleOptions}
                   />
-                  <EmployeeTable 
+                  <EmployeeTable
                     employees={filteredEmployees}
                     onView={(emp) => { setSelectedEmployee(emp); setIsEmployeeViewOpen(true); }}
+                    onEdit={handleEditEmployee}
                     onPromote={(emp) => { setSelectedEmployee(emp); setIsRolePromotionOpen(true); }}
                   />
                 </TabsContent>
@@ -298,11 +315,11 @@ export function OrganizationTabs() {
       </Tabs>
 
       {/* Department Modals */}
-      <DepartmentDialog 
+      <DepartmentDialog
         departments={departments}
         users={employees}
-        open={isDeptAddEditOpen} 
-        onOpenChange={setIsDeptAddEditOpen} 
+        open={isDeptAddEditOpen}
+        onOpenChange={setIsDeptAddEditOpen}
         department={selectedDept}
         onSave={handleSaveDepartment}
       />
@@ -337,7 +354,7 @@ export function OrganizationTabs() {
       <EmployeeDialog
         open={isEmployeeViewOpen}
         onOpenChange={setIsEmployeeViewOpen}
-        employee={selectedEmployee as any}
+        employee={selectedEmployee}
       />
       <RolePromotionDialog
         open={isRolePromotionOpen}

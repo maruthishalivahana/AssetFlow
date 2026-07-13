@@ -16,7 +16,7 @@ export function ResourceBookingPage() {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-  const { resources, bookings, loading, error } = useAppSelector((state) => state.booking as { resources: BookingResource[]; bookings: BookingItem[]; loading: boolean; error?: string | null });
+  const { resources, bookings, loading, error } = useAppSelector((state) => state.bookings as { resources: BookingResource[]; bookings: BookingItem[]; loading: boolean; error?: string | null });
 
   useEffect(() => {
     dispatch(fetchBookingResources());

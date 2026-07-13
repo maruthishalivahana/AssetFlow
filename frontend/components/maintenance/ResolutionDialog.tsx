@@ -126,7 +126,7 @@ export function ResolutionDialog({
           {/* Condition After Repair */}
           <div className="space-y-2">
             <Label className="text-slate-300">Asset Condition After Repair</Label>
-            <Select value={condition} onValueChange={setCondition}>
+            <Select value={condition} onValueChange={(v) => setCondition(v || "")}>
               <SelectTrigger className="bg-[#090909] border-[#262626] text-slate-100">
                 <SelectValue />
               </SelectTrigger>

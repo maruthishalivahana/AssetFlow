@@ -9,6 +9,7 @@ import {
 import { AssetStatusBadge } from "./AssetStatusBadge";
 import { AssetConditionBadge } from "./AssetConditionBadge";
 import { QrCode, Calendar, MapPin, Building2, User, Clock, HardDrive, Tag, FileText, Download } from "lucide-react";
+import { getRelationLabel } from "./assetDisplay";
 
 interface ViewAssetDialogProps {
   asset: Asset | null;
@@ -32,7 +33,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
                 <AssetStatusBadge status={asset.status} />
                 <AssetConditionBadge condition={asset.condition} />
                 <span className="text-sm text-slate-400 bg-[#262626]/50 px-2.5 py-0.5 rounded-full border border-[#262626]">
-                  {asset.category}
+                  {getRelationLabel((asset as any).category || (asset as any).assetCategory)}
                 </span>
               </div>
             </div>
@@ -66,7 +67,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
               <div className="flex items-center gap-3 text-sm">
                 <Building2 className="w-4 h-4 text-slate-500" />
                 <span className="text-slate-400 w-24">Department:</span>
-                <span className="text-slate-100 font-medium">{asset.department}</span>
+                <span className="text-slate-100 font-medium">{getRelationLabel((asset as any).department)}</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <User className="w-4 h-4 text-slate-500" />
@@ -76,7 +77,7 @@ export function ViewAssetDialog({ asset, open, onOpenChange }: ViewAssetDialogPr
               <div className="flex items-center gap-3 text-sm">
                 <MapPin className="w-4 h-4 text-slate-500" />
                 <span className="text-slate-400 w-24">Location:</span>
-                <span className="text-slate-100 font-medium">{asset.location}</span>
+                <span className="text-slate-100 font-medium">{getRelationLabel((asset as any).location)}</span>
               </div>
             </div>
           </div>

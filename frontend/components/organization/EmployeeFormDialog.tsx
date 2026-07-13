@@ -84,7 +84,7 @@ export function EmployeeFormDialog({
           phone: employee.phone || "",
           employeeCode: employee.employeeCode || "",
           jobTitle: employee.jobTitle || "",
-          departmentId: employee.departmentId || "none",
+          departmentId: employee.department?.id || "none",
           role: employee.role || "EMPLOYEE",
           status: employee.status || "ACTIVE",
         });
@@ -211,7 +211,7 @@ export function EmployeeFormDialog({
               <Label className="text-slate-300">Department</Label>
               <Select
                 value={departmentId || "none"}
-                onValueChange={(val) => setValue("departmentId", val)}
+                onValueChange={(val) => setValue("departmentId", val || undefined)}
               >
                 <SelectTrigger className="bg-slate-900 border-border">
                   <SelectValue placeholder="Select dept" />
@@ -233,7 +233,7 @@ export function EmployeeFormDialog({
               <Label className="text-slate-300">Role</Label>
               <Select
                 value={role || "EMPLOYEE"}
-                onValueChange={(val) => setValue("role", val)}
+                onValueChange={(val) => setValue("role", val || undefined)}
               >
                 <SelectTrigger className="bg-slate-900 border-border">
                   <SelectValue placeholder="Select role" />
@@ -251,7 +251,7 @@ export function EmployeeFormDialog({
                 <Label className="text-slate-300">Status</Label>
                 <Select
                   value={status || "ACTIVE"}
-                  onValueChange={(val) => setValue("status", val)}
+                  onValueChange={(val) => setValue("status", val || undefined)}
                 >
                   <SelectTrigger className="bg-slate-900 border-border">
                     <SelectValue />

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Asset, AssetCategory, AssetStatus, AssetCondition } from "./mockData";
+import { assetConditionOptions, getRelationId, normalizeAssetCondition } from "./assetDisplay";
 
 const assetSchema = z.object({
   name: z.string().min(1, "Asset Name is required"),
@@ -48,8 +49,7 @@ interface RegisterAssetDialogProps {
   onSave: (data: any) => void;
 
   // Data for selects
-  departments: string[];
-  locations: string[];
+  departments: { id: string; name: string }[];
 }
 
 export function RegisterAssetDialog({
@@ -58,7 +58,6 @@ export function RegisterAssetDialog({
   onOpenChange,
   onSave,
   departments,
-  locations,
 }: RegisterAssetDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEditing = !!asset;
@@ -78,7 +77,7 @@ export function RegisterAssetDialog({
       serialNumber: "",
       department: "",
       location: "",
-      condition: "New",
+      condition: "NEW",
       status: "Available",
       purchaseDate: new Date().toISOString().split("T")[0],
       purchaseCost: 0,
@@ -100,11 +99,11 @@ export function RegisterAssetDialog({
     if (asset && open) {
       reset({
         name: asset.name,
-        category: asset.category,
+        category: getRelationId((asset as any).category || (asset as any).assetCategory),
         serialNumber: asset.serialNumber,
-        department: asset.department,
-        location: asset.location,
-        condition: asset.condition,
+        department: getRelationId((asset as any).department),
+        location: getRelationId((asset as any).location),
+        condition: normalizeAssetCondition(typeof asset.condition === "string" ? asset.condition : "NEW"),
         status: asset.status,
         purchaseDate: asset.purchaseDate,
         purchaseCost: asset.purchaseCost,
@@ -120,7 +119,7 @@ export function RegisterAssetDialog({
         serialNumber: "",
         department: "",
         location: "",
-        condition: "New",
+        condition: "NEW",
         status: "Available",
         purchaseDate: new Date().toISOString().split("T")[0],
         purchaseCost: 0,
@@ -135,26 +134,12 @@ export function RegisterAssetDialog({
   const onSubmit = async (data: AssetFormValues) => {
     setIsSubmitting(true);
     try {
-      // Map form fields to API payload
-      const payload: any = {
-        name: data.name,
-        assetCategoryId: data.category,
-        departmentId: data.department,
-        serialNumber: data.serialNumber,
-        description: data.description,
-        purchaseDate: data.purchaseDate,
-        purchaseCost: Number(data.purchaseCost || 0),
-        isBookable: !!data.bookable,
-        condition: data.condition,
-      };
-
-      // call onSave which should call the service to create asset
-      await onSave(payload);
+      await onSave(data);
+      onOpenChange(false);
     } catch (err) {
       console.error('Failed to save asset', err);
     } finally {
       setIsSubmitting(false);
-      onOpenChange(false);
     }
   };
 
@@ -162,7 +147,7 @@ export function RegisterAssetDialog({
   const [remoteDepartments, setRemoteDepartments] = useState<{ id: string; name: string }[]>([]);
   const categories: AssetCategory[] = ["Electronics", "Furniture", "Vehicles", "Network", "IT Equipment", "AV Equipment"];
   const statuses: AssetStatus[] = ["Available", "Allocated", "Maintenance", "Reserved", "Lost", "Disposed", "Retired"];
-  const conditions: AssetCondition[] = ["Excellent", "Good", "Fair", "Poor", "New"];
+  const conditions = assetConditionOptions;
 
   useEffect(() => {
     // fetch remote lists once when dialog opens
@@ -182,6 +167,8 @@ export function RegisterAssetDialog({
     })();
     return () => { mounted = false; };
   }, [open]);
+
+  const departmentOptions = remoteDepartments.length > 0 ? remoteDepartments : departments;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -241,26 +228,24 @@ export function RegisterAssetDialog({
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
                 <SelectContent>
-                  {remoteDepartments.length > 0 ? (
-                    remoteDepartments.map(d => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)
-                  ) : (
-                    departments.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)
-                  )}
+                  {departmentOptions.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.department && <p className="text-xs text-red-500">{errors.department.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label className="text-slate-300">Location <span className="text-red-500">*</span></Label>
-              <Select value={location} onValueChange={(val) => setValue("location", val as string)}>
-                <SelectTrigger className={`bg-[#090909] border-[#262626] text-slate-100 ${errors.location ? "border-red-500" : ""}`}>
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="location" className="text-slate-300">Location <span className="text-red-500">*</span></Label>
+              <Input
+                id="location"
+                placeholder="e.g. HQ Floor 3"
+                className={`bg-[#090909] border-[#262626] text-slate-100 placeholder:text-slate-500 ${errors.location ? "border-red-500" : ""}`}
+                {...register("location")}
+              />
               {errors.location && <p className="text-xs text-red-500">{errors.location.message}</p>}
             </div>
 
@@ -271,7 +256,7 @@ export function RegisterAssetDialog({
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
                 <SelectContent>
-                  {conditions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {conditions.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                 </SelectContent>
               </Select>
               {errors.condition && <p className="text-xs text-red-500">{errors.condition.message}</p>}

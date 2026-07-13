@@ -14,6 +14,7 @@ export interface CreateAssetPayload {
     name: string;
     assetCategoryId: string;
     departmentId: string;
+    location?: string;
     serialNumber?: string;
     description?: string;
     purchaseDate?: string;

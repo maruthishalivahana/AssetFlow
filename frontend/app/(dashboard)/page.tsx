@@ -5,12 +5,12 @@ import { AlertBanner } from "@/components/dashboard/AlertBanner";
 import { QuickActionCard } from "@/components/dashboard/QuickActionCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { UpcomingTasks } from "@/components/dashboard/UpcomingTasks";
-import { 
-  Package, 
-  Link2, 
-  Wrench, 
-  Calendar, 
-  ArrowRight, 
+import {
+  Package,
+  Link2,
+  Wrench,
+  Calendar,
+  ArrowRight,
   RotateCcw,
   Plus,
   CalendarPlus,
@@ -64,9 +64,9 @@ const overviewData = [
 ];
 
 const quickActionsData = [
-  { title: "Register Asset", icon: Plus, href: "/assets/new" },
-  { title: "Book Resource", icon: CalendarPlus, href: "/bookings/new" },
-  { title: "Raise Requests", icon: FilePlus, href: "/requests/new" },
+  { title: "Register Asset", icon: Plus, href: "/dashboard/assets" },
+  { title: "Book Resource", icon: CalendarPlus, href: "/dashboard/bookings" },
+  { title: "Raise Requests", icon: FilePlus, href: "/dashboard/maintenance" },
 ];
 
 const recentActivityData = [
@@ -127,7 +127,7 @@ const upcomingTasksData = [
 export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500">
-      <DashboardHeader 
+      <DashboardHeader
         title="Good Morning, Maruthi"
         subtitle="Here's what's happening today."
       />
@@ -139,7 +139,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <AlertBanner 
+      <AlertBanner
         message="3 assets overdue for return - flagged for follow-up."
         actionText="View Details"
         actionHref="/reports/overdue"
