@@ -7,9 +7,25 @@ export const createAssetSchema = z.object({
     serialNumber: z.string().optional(),
     description: z.string().optional(),
     purchaseDate: z.string().optional(),
-    purchaseCost: z.number().optional(),
-    isBookable: z.boolean().optional(),
-    condition: z.enum(['NEW', 'GOOD', 'FAIR', 'DAMAGED', 'SCRAPPED']).optional(),
+    purchaseCost: z.preprocess(
+        (value) => {
+            if (typeof value === 'string' && value.trim() !== '') return Number(value);
+            return value;
+        },
+        z.number().optional(),
+    ),
+    isBookable: z.preprocess(
+        (value) => {
+            if (value === 'true') return true;
+            if (value === 'false') return false;
+            return value;
+        },
+        z.boolean().optional(),
+    ),
+    condition: z.preprocess(
+        (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+        z.enum(['NEW', 'GOOD', 'FAIR', 'DAMAGED', 'SCRAPPED']).optional(),
+    ),
 });
 
 export const updateAssetSchema = createAssetSchema.partial();

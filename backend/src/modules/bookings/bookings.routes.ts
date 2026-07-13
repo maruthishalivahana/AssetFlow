@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { bookingsController } from './bookings.controller';
-import { requireRole } from '@shared/middleware/auth.middleware';
+import { requireAuth, requireRole } from '@shared/middleware/auth.middleware';
 
 export const bookingsRoutes = Router();
+
+// Authenticate all booking routes first so req.user is populated
+bookingsRoutes.use(requireAuth);
 
 bookingsRoutes.get('/resources', requireRole(['ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE']), bookingsController.listResources);
 bookingsRoutes.get('/resources/:id', requireRole(['ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE']), bookingsController.getResource);

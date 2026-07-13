@@ -9,19 +9,21 @@ import {
 
 export const departmentsRoutes = Router();
 
-// Protect all department routes to ADMIN only
 departmentsRoutes.use(requireAuth);
-departmentsRoutes.use(requireRoles('ADMIN'));
 
-departmentsRoutes.get('/tree', departmentsController.getDepartmentTree);
+departmentsRoutes.get('/tree', requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'), departmentsController.getDepartmentTree);
 
 departmentsRoutes.get(
   '/',
+  requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'),
   validateRequest({ query: getDepartmentsQuerySchema }),
   departmentsController.getDepartments,
 );
 
-departmentsRoutes.get('/:id', departmentsController.getDepartmentById);
+departmentsRoutes.get('/:id', requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'), departmentsController.getDepartmentById);
+
+// Protect mutation routes to ADMIN only
+departmentsRoutes.use(requireRoles('ADMIN'));
 
 departmentsRoutes.post(
   '/',

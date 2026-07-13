@@ -9,19 +9,21 @@ import {
 
 export const assetCategoriesRoutes = Router();
 
-// Protect all category endpoints to ADMIN only
 assetCategoriesRoutes.use(requireAuth);
-assetCategoriesRoutes.use(requireRoles('ADMIN'));
 
-assetCategoriesRoutes.get('/tree', assetCategoriesController.getCategoryTree);
+assetCategoriesRoutes.get('/tree', requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'), assetCategoriesController.getCategoryTree);
 
 assetCategoriesRoutes.get(
   '/',
+  requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'),
   validateRequest({ query: getCategoriesQuerySchema }),
   assetCategoriesController.getCategories,
 );
 
-assetCategoriesRoutes.get('/:id', assetCategoriesController.getCategoryById);
+assetCategoriesRoutes.get('/:id', requireRoles('ADMIN', 'ASSET_MANAGER', 'DEPARTMENT_HEAD', 'EMPLOYEE'), assetCategoriesController.getCategoryById);
+
+// Protect mutation endpoints to ADMIN only
+assetCategoriesRoutes.use(requireRoles('ADMIN'));
 
 assetCategoriesRoutes.post(
   '/',
